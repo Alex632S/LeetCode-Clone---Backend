@@ -1,0 +1,1304 @@
+openapi: 3.0.3
+info:
+  title: LeetCode Clone API
+  description: |-
+    Полнофункциональный бэкэнд API для платформы программирования, подобной LeetCode. Предоставляет функции для управления задачами, пользователями, комментариями, рейтингами и файлами.
+    
+    ## Authentication
+    Для большинства конечных точек требуется аутентификация JWT. Включите токен в заголовок Authorization.:
+    ```
+    Authorization: Bearer <your_jwt_token>
+    ```
+    
+    ## User Roles
+    - **user**: Базовый доступ, можно комментировать и оценивать задачи
+    - **interviewer**: Может создавать и редактировать задачи  
+    - **admin**: Полный доступ ко всем функциям
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:3000/api
+    description: Development server
+  - url: https://your-production-domain.com/api
+    description: Production server
+
+tags:
+  - name: Authentication
+    description: User registration, login, and authentication
+  - name: Users
+    description: User management and profiles
+  - name: Problems
+    description: Coding problems management
+  - name: Comments
+    description: Problem comments and discussions
+  - name: Ratings
+    description: Problem ratings and reviews
+  - name: Tags
+    description: Problem tags management
+  - name: Files
+    description: File uploads and downloads
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token obtained from login endpoint
+  
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        username:
+          type: string
+          example: "john_doe"
+        email:
+          type: string
+          format: email
+          example: "john@example.com"
+        role:
+          type: string
+          enum: [user, interviewer, admin]
+          example: "user"
+        createdAt:
+          type: string
+          format: date-time
+          example: "2023-10-01T10:00:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2023-10-01T10:00:00Z"
+      required:
+        - id
+        - username
+        - email
+        - role
+
+    Problem:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: "Two Sum"
+        description:
+          type: string
+          example: "Given an array of integers nums and an integer target..."
+        difficulty:
+          type: string
+          enum: [easy, medium, hard]
+          example: "easy"
+        examples:
+          type: array
+          items:
+            type: object
+            properties:
+              input:
+                type: string
+                example: "nums = [2,7,11,15], target = 9"
+              output:
+                type: string
+                example: "[0,1]"
+              explanation:
+                type: string
+                example: "Because nums[0] + nums[1] == 9"
+        tags:
+          type: array
+          items:
+            type: string
+          example: ["array", "hash-table"]
+        averageRating:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 5
+          example: 4.5
+        ratingCount:
+          type: integer
+          example: 10
+        createdAt:
+          type: string
+          format: date-time
+          example: "2023-10-01T10:00:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2023-10-01T10:00:00Z"
+      required:
+        - id
+        - title
+        - description
+        - difficulty
+
+    ProblemCreate:
+      type: object
+      properties:
+        title:
+          type: string
+          example: "Two Sum"
+        description:
+          type: string
+          example: "Given an array of integers nums and an integer target..."
+        difficulty:
+          type: string
+          enum: [easy, medium, hard]
+          example: "easy"
+        examples:
+          type: array
+          items:
+            type: object
+            properties:
+              input:
+                type: string
+              output:
+                type: string
+              explanation:
+                type: string
+        tags:
+          type: array
+          items:
+            type: string
+          example: ["array", "hash-table"]
+      required:
+        - title
+        - description
+        - difficulty
+
+    Comment:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        content:
+          type: string
+          example: "Great problem for beginners!"
+        userId:
+          type: integer
+          example: 1
+        problemId:
+          type: integer
+          example: 1
+        parentId:
+          type: integer
+          nullable: true
+          example: null
+        user:
+          $ref: '#/components/schemas/User'
+        replies:
+          type: array
+          items:
+            $ref: '#/components/schemas/Comment'
+        createdAt:
+          type: string
+          format: date-time
+          example: "2023-10-01T10:00:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2023-10-01T10:00:00Z"
+
+    CommentCreate:
+      type: object
+      properties:
+        content:
+          type: string
+          example: "This is a helpful comment"
+        problemId:
+          type: integer
+          example: 1
+        parentId:
+          type: integer
+          nullable: true
+          example: null
+      required:
+        - content
+        - problemId
+
+    Rating:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        userId:
+          type: integer
+          example: 1
+        problemId:
+          type: integer
+          example: 1
+        value:
+          type: integer
+          minimum: 1
+          maximum: 5
+          example: 5
+        createdAt:
+          type: string
+          format: date-time
+          example: "2023-10-01T10:00:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2023-10-01T10:00:00Z"
+
+    RatingCreate:
+      type: object
+      properties:
+        problemId:
+          type: integer
+          example: 1
+        value:
+          type: integer
+          minimum: 1
+          maximum: 5
+          example: 5
+      required:
+        - problemId
+        - value
+
+    RatingResponse:
+      type: object
+      properties:
+        rating:
+          $ref: '#/components/schemas/Rating'
+        averageRating:
+          type: number
+          format: float
+          example: 4.5
+        ratingCount:
+          type: integer
+          example: 10
+
+    Tag:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "array"
+        description:
+          type: string
+          example: "Problems involving arrays"
+        color:
+          type: string
+          example: "#FF6B6B"
+        createdAt:
+          type: string
+          format: date-time
+          example: "2023-10-01T10:00:00Z"
+
+    TagCreate:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "graph"
+        description:
+          type: string
+          example: "Graph theory problems"
+        color:
+          type: string
+          example: "#FFA726"
+      required:
+        - name
+
+    File:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        filename:
+          type: string
+          example: "solution-123456789.pdf"
+        originalName:
+          type: string
+          example: "solution.pdf"
+        path:
+          type: string
+          example: "/uploads/solution-123456789.pdf"
+        problemId:
+          type: integer
+          example: 1
+        uploadedBy:
+          type: integer
+          example: 1
+        fileSize:
+          type: integer
+          example: 1024
+        mimeType:
+          type: string
+          example: "application/pdf"
+        description:
+          type: string
+          example: "Solution explanation"
+        createdAt:
+          type: string
+          format: date-time
+          example: "2023-10-01T10:00:00Z"
+
+    AuthResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Login successful"
+        user:
+          $ref: '#/components/schemas/User'
+        token:
+          type: string
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+
+    LoginRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          example: "john@example.com"
+        password:
+          type: string
+          format: password
+          example: "password123"
+      required:
+        - email
+        - password
+
+    RegisterRequest:
+      type: object
+      properties:
+        username:
+          type: string
+          example: "john_doe"
+        email:
+          type: string
+          format: email
+          example: "john@example.com"
+        password:
+          type: string
+          format: password
+          example: "password123"
+        role:
+          type: string
+          enum: [user, interviewer, admin]
+          default: "user"
+          example: "user"
+      required:
+        - username
+        - email
+        - password
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Error message description"
+        code:
+          type: string
+          example: "VALIDATION_ERROR"
+        details:
+          type: object
+          additionalProperties: true
+
+    PaginatedResponse:
+      type: object
+      properties:
+        total:
+          type: integer
+          example: 100
+        page:
+          type: integer
+          example: 1
+        totalPages:
+          type: integer
+          example: 10
+        hasNext:
+          type: boolean
+          example: true
+        hasPrev:
+          type: boolean
+          example: false
+
+    ProblemsResponse:
+      allOf:
+        - $ref: '#/components/schemas/PaginatedResponse'
+        - type: object
+          properties:
+            problems:
+              type: array
+              items:
+                $ref: '#/components/schemas/Problem'
+
+    CommentsResponse:
+      allOf:
+        - $ref: '#/components/schemas/PaginatedResponse'
+        - type: object
+          properties:
+            comments:
+              type: array
+              items:
+                $ref: '#/components/schemas/Comment'
+
+    TagsResponse:
+      allOf:
+        - $ref: '#/components/schemas/PaginatedResponse'
+        - type: object
+          properties:
+            tags:
+              type: array
+              items:
+                $ref: '#/components/schemas/Tag'
+
+    FilesResponse:
+      allOf:
+        - $ref: '#/components/schemas/PaginatedResponse'
+        - type: object
+          properties:
+            files:
+              type: array
+              items:
+                $ref: '#/components/schemas/File'
+
+    StatsResponse:
+      type: object
+      properties:
+        totalProblems:
+          type: integer
+          example: 50
+        byDifficulty:
+          type: object
+          properties:
+            easy:
+              type: integer
+              example: 20
+            medium:
+              type: integer
+              example: 20
+            hard:
+              type: integer
+              example: 10
+        popularTags:
+          type: array
+          items:
+            type: object
+            properties:
+              tag:
+                type: string
+                example: "array"
+              count:
+                type: integer
+                example: 15
+        totalTags:
+          type: integer
+          example: 25
+
+  parameters:
+    ProblemId:
+      name: problemId
+      in: path
+      required: true
+      schema:
+        type: integer
+      description: ID of the problem
+    CommentId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+      description: ID of the comment
+    TagId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+      description: ID of the tag
+    FileId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+      description: ID of the file
+    PageParam:
+      name: page
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+      description: Page number for pagination
+    LimitParam:
+      name: limit
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 10
+      description: Number of items per page
+    SearchParam:
+      name: search
+      in: query
+      required: false
+      schema:
+        type: string
+      description: Search query
+    DifficultyParam:
+      name: difficulty
+      in: query
+      required: false
+      schema:
+        type: string
+        enum: [easy, medium, hard]
+      description: Filter by difficulty
+    TagsParam:
+      name: tags
+      in: query
+      required: false
+      schema:
+        type: string
+      description: Comma-separated list of tags
+    MinRatingParam:
+      name: minRating
+      in: query
+      required: false
+      schema:
+        type: number
+        minimum: 0
+        maximum: 5
+      description: Minimum rating filter
+    MaxRatingParam:
+      name: maxRating
+      in: query
+      required: false
+      schema:
+        type: number
+        minimum: 0
+        maximum: 5
+      description: Maximum rating filter
+    SortByParam:
+      name: sortBy
+      in: query
+      required: false
+      schema:
+        type: string
+        enum: [title, difficulty, rating, createdAt]
+        default: createdAt
+      description: Field to sort by
+    SortOrderParam:
+      name: sortOrder
+      in: query
+      required: false
+      schema:
+        type: string
+        enum: [asc, desc]
+        default: desc
+      description: Sort order
+
+  responses:
+    Unauthorized:
+      description: Authentication required or invalid token
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Forbidden:
+      description: Insufficient permissions
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ValidationError:
+      description: Validation error in request data
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+paths:
+  /auth/register:
+    post:
+      summary: Register a new user
+      tags: [Authentication]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '409':
+          description: User with this email already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/login:
+    post:
+      summary: Login user
+      tags: [Authentication]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: Invalid email or password
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/me:
+    get:
+      summary: Get current user information
+      tags: [Authentication]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Current user data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /auth/logout:
+    post:
+      summary: Logout user
+      tags: [Authentication]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Logout successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Logout successful"
+
+  /problems:
+    get:
+      summary: Get all problems with filtering and pagination
+      tags: [Problems]
+      parameters:
+        - $ref: '#/components/parameters/SearchParam'
+        - $ref: '#/components/parameters/DifficultyParam'
+        - $ref: '#/components/parameters/TagsParam'
+        - $ref: '#/components/parameters/MinRatingParam'
+        - $ref: '#/components/parameters/MaxRatingParam'
+        - $ref: '#/components/parameters/SortByParam'
+        - $ref: '#/components/parameters/SortOrderParam'
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: List of problems
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemsResponse'
+
+    post:
+      summary: Create a new problem
+      tags: [Problems]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProblemCreate'
+      responses:
+        '201':
+          description: Problem created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+
+  /problems/{problemId}:
+    get:
+      summary: Get problem by ID
+      tags: [Problems]
+      parameters:
+        - $ref: '#/components/parameters/ProblemId'
+      responses:
+        '200':
+          description: Problem details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    put:
+      summary: Update problem
+      tags: [Problems]
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/ProblemId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProblemCreate'
+      responses:
+        '200':
+          description: Problem updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      summary: Delete problem
+      tags: [Problems]
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/ProblemId'
+      responses:
+        '204':
+          description: Problem deleted successfully
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /problems/stats/overview:
+    get:
+      summary: Get problems statistics
+      tags: [Problems]
+      responses:
+        '200':
+          description: Statistics data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatsResponse'
+
+  /comments:
+    post:
+      summary: Create a new comment
+      tags: [Comments]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentCreate'
+      responses:
+        '201':
+          description: Comment created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+
+  /comments/problems/{problemId}:
+    get:
+      summary: Get comments for a problem
+      tags: [Comments]
+      parameters:
+        - $ref: '#/components/parameters/ProblemId'
+      responses:
+        '200':
+          description: List of comments
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentsResponse'
+
+  /comments/{id}:
+    put:
+      summary: Update comment
+      tags: [Comments]
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/CommentId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+      responses:
+        '200':
+          description: Comment updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: Can only edit your own comments
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      summary: Delete comment
+      tags: [Comments]
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/CommentId'
+      responses:
+        '204':
+          description: Comment deleted successfully
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /ratings:
+    post:
+      summary: Add or update rating for a problem
+      tags: [Ratings]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RatingCreate'
+      responses:
+        '200':
+          description: Rating added/updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RatingResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+
+  /ratings/problems/{problemId}:
+    get:
+      summary: Get rating information for a problem
+      tags: [Ratings]
+      parameters:
+        - $ref: '#/components/parameters/ProblemId'
+      responses:
+        '200':
+          description: Rating data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  averageRating:
+                    type: number
+                    format: float
+                  ratingCount:
+                    type: integer
+                  userRating:
+                    $ref: '#/components/schemas/Rating'
+                    nullable: true
+
+  /ratings/problems/{problemId}/my-rating:
+    get:
+      summary: Get current user's rating for a problem
+      tags: [Ratings]
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/ProblemId'
+      responses:
+        '200':
+          description: User's rating data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  userRating:
+                    $ref: '#/components/schemas/Rating'
+                    nullable: true
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /tags:
+    get:
+      summary: Get all tags
+      tags: [Tags]
+      parameters:
+        - $ref: '#/components/parameters/SearchParam'
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: List of tags
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TagsResponse'
+
+    post:
+      summary: Create a new tag
+      tags: [Tags]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TagCreate'
+      responses:
+        '201':
+          description: Tag created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tag'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          description: Tag with this name already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /tags/popular:
+    get:
+      summary: Get popular tags
+      tags: [Tags]
+      responses:
+        '200':
+          description: List of popular tags
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TagsResponse'
+
+  /tags/{id}:
+    put:
+      summary: Update tag
+      tags: [Tags]
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TagId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TagCreate'
+      responses:
+        '200':
+          description: Tag updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tag'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Tag with this name already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    delete:
+      summary: Delete tag
+      tags: [Tags]
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TagId'
+      responses:
+        '204':
+          description: Tag deleted successfully
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /files/upload:
+    post:
+      summary: Upload a file for a problem
+      tags: [Files]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: File to upload
+                problemId:
+                  type: integer
+                  description: ID of the problem
+                description:
+                  type: string
+                  description: File description
+      responses:
+        '201':
+          description: File uploaded successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "File uploaded successfully"
+                  file:
+                    $ref: '#/components/schemas/File'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '400':
+          description: No file uploaded or problemId missing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /files/problem/{problemId}:
+    get:
+      summary: Get files for a problem
+      tags: [Files]
+      parameters:
+        - $ref: '#/components/parameters/ProblemId'
+      responses:
+        '200':
+          description: List of files
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FilesResponse'
+
+  /files/{id}/download:
+    get:
+      summary: Download a file
+      tags: [Files]
+      parameters:
+        - $ref: '#/components/parameters/FileId'
+      responses:
+        '200':
+          description: File content
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /files/{id}:
+    delete:
+      summary: Delete a file
+      tags: [Files]
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/FileId'
+      responses:
+        '204':
+          description: File deleted successfully
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /users:
+    get:
+      summary: Get all users (admin only)
+      tags: [Users]
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: List of users
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedResponse'
+                  - type: object
+                    properties:
+                      users:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /users/{id}:
+    get:
+      summary: Get user by ID
+      tags: [Users]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: User data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: Can only view own profile or admin access required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    put:
+      summary: Update user
+      tags: [Users]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                role:
+                  type: string
+                  enum: [user, interviewer, admin]
+      responses:
+        '200':
+          description: User updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: Can only update own profile or admin access required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          $ref: '#/components/responses/NotFound'
