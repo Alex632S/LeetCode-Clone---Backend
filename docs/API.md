@@ -175,9 +175,6 @@ docker-compose up --build
 # Все тесты
 npm test
 
-# С покрытием
-npm run test:coverage
-
 # Определенный тест
 npm test -- tests/auth.test.js
 ```
