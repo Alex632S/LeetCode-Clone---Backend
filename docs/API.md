@@ -167,7 +167,7 @@ docker-compose up --build
 
 ## Документация API
 
-Доступно по адресу: `http://localhost:3000/api`
+Доступно по адресу: `http://localhost:3000/api/docs`
 
 ## Тестирование
 
