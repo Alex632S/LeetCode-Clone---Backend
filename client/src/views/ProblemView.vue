@@ -2,6 +2,7 @@
   <div class="problem-view">
     <div v-if="loading" class="flex justify-content-center p-4">
       <ProgressSpinner />
+      <span class="ml-2">{{ t('common.loading') }}</span>
     </div>
 
     <div v-else-if="problem" class="grid">
@@ -12,7 +13,7 @@
             <div class="flex align-items-center gap-2">
               <span>{{ problem.title }}</span>
               <Tag
-                :value="problem.difficulty"
+                :value="t(`problems.${problem.difficulty}`)"
                 :severity="getDifficultySeverity(problem.difficulty)"
                 class="capitalize"
               />
@@ -22,7 +23,7 @@
             <div class="flex align-items-center gap-3 mt-2">
               <div class="flex align-items-center gap-1">
                 <i class="pi pi-star-fill text-yellow-500"></i>
-                <span>{{ problem.averageRating?.toFixed(1) || 'No ratings' }}</span>
+                <span>{{ problem.averageRating?.toFixed(1) || t('problems.noRatings') }}</span>
                 <span class="text-color-secondary text-sm">({{ problem.ratingCount || 0 }})</span>
               </div>
               <div class="flex align-items-center gap-1">
@@ -44,20 +45,20 @@
                 :key="index"
                 class="example-section mb-4"
               >
-                <h4>Example {{ index + 1 }}</h4>
+                <h4>{{ t('problems.example') }} {{ index + 1 }}</h4>
                 <Card class="example-card">
                   <template #content>
                     <div class="grid">
                       <div class="col-12 md:col-6">
-                        <strong>Input:</strong>
+                        <strong>{{ t('problems.input') }}:</strong>
                         <pre class="example-code">{{ example.input }}</pre>
                       </div>
                       <div class="col-12 md:col-6">
-                        <strong>Output:</strong>
+                        <strong>{{ t('problems.output') }}:</strong>
                         <pre class="example-code">{{ example.output }}</pre>
                       </div>
                       <div v-if="example.explanation" class="col-12">
-                        <strong>Explanation:</strong>
+                        <strong>{{ t('problems.explanation') }}:</strong>
                         <p class="mt-2">{{ example.explanation }}</p>
                       </div>
                     </div>
@@ -67,7 +68,7 @@
 
               <!-- Tags -->
               <div class="tags-section mt-4">
-                <h4>Tags</h4>
+                <h4>{{ t('problems.tags') }}</h4>
                 <div class="flex flex-wrap gap-2 mt-2">
                   <Chip v-for="tag in problem.tags" :key="tag" :label="tag" class="capitalize" />
                 </div>
@@ -84,12 +85,16 @@
       <div class="col-12 lg:col-6">
         <!-- User Rating -->
         <Card v-if="authStore.isAuthenticated" class="mb-4">
-          <template #title>Rate this problem</template>
+          <template #title>{{ t('problems.rateProblem') }}</template>
           <template #content>
             <div class="flex align-items-center gap-3">
               <Rating v-model="userRating" :cancel="false" @update:modelValue="handleRateProblem" />
               <span class="text-color-secondary text-sm">
-                {{ userRating ? `You rated ${userRating} stars` : 'Rate this problem' }}
+                {{
+                  userRating
+                    ? t('problems.youRated', { rating: userRating })
+                    : t('problems.ratePrompt')
+                }}
               </span>
             </div>
           </template>
@@ -100,7 +105,7 @@
           <template #title>
             <div class="flex align-items-center gap-2">
               <i class="pi pi-code"></i>
-              <span>Code Editor</span>
+              <span>{{ t('codeEditor.title') }}</span>
             </div>
           </template>
           <template #content>
@@ -110,20 +115,20 @@
 
         <!-- Problem Stats -->
         <Card class="mt-4">
-          <template #title>Problem Statistics</template>
+          <template #title>{{ t('problems.statistics') }}</template>
           <template #content>
             <div class="grid text-center">
               <div class="col-4">
                 <div class="text-2xl font-bold text-primary">{{ problem.ratingCount || 0 }}</div>
-                <div class="text-color-secondary text-sm">Ratings</div>
+                <div class="text-color-secondary text-sm">{{ t('problems.ratings') }}</div>
               </div>
               <div class="col-4">
                 <div class="text-2xl font-bold text-primary">85%</div>
-                <div class="text-color-secondary text-sm">Acceptance</div>
+                <div class="text-color-secondary text-sm">{{ t('problems.acceptance') }}</div>
               </div>
               <div class="col-4">
                 <div class="text-2xl font-bold text-primary">1.2k</div>
-                <div class="text-color-secondary text-sm">Submissions</div>
+                <div class="text-color-secondary text-sm">{{ t('problems.submissions') }}</div>
               </div>
             </div>
           </template>
@@ -133,7 +138,9 @@
 
     <!-- Error State -->
     <div v-else class="flex justify-content-center p-4">
-      <Message severity="error" :closable="false"> Problem not found or failed to load. </Message>
+      <Message severity="error" :closable="false">
+        {{ t('problems.notFound') }}
+      </Message>
     </div>
   </div>
 </template>
@@ -145,6 +152,7 @@ import { useProblemsStore } from '@/stores/problems'
 import { useAuthStore } from '@/stores/auth'
 import { apiService } from '@/services/api'
 import type { Problem, Rating } from '@/types'
+import { useI18n } from '@/composables/useI18n'
 
 // Components
 import CommentsSection from '../components/comments/CommentsSection.vue'
@@ -161,6 +169,7 @@ const route = useRoute()
 const router = useRouter()
 const problemsStore = useProblemsStore()
 const authStore = useAuthStore()
+const { t } = useI18n()
 
 const problemId = parseInt(route.params.id as string)
 const problem = ref<Problem | null>(null)

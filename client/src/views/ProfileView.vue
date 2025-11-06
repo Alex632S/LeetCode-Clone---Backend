@@ -6,7 +6,7 @@
           <template #title>
             <div class="flex align-items-center gap-2">
               <i class="pi pi-user"></i>
-              <span>User Profile</span>
+              <span>{{ t('profile.title') }}</span>
             </div>
           </template>
           <template #content>
@@ -15,22 +15,30 @@
               <div class="user-info grid">
                 <div class="col-12 md:col-6">
                   <div class="field">
-                    <label class="font-bold block mb-2">Username</label>
-                    <InputText v-model="editForm.username" class="w-full" :disabled="!isEditing" />
+                    <label class="font-bold block mb-2">{{ t('auth.username') }}</label>
+                    <InputText 
+                      v-model="editForm.username" 
+                      class="w-full" 
+                      :disabled="!isEditing"
+                    />
                   </div>
                 </div>
                 <div class="col-12 md:col-6">
                   <div class="field">
-                    <label class="font-bold block mb-2">Email</label>
-                    <InputText v-model="authStore.user.email" class="w-full" disabled />
+                    <label class="font-bold block mb-2">{{ t('auth.email') }}</label>
+                    <InputText 
+                      v-model="authStore.user.email" 
+                      class="w-full" 
+                      disabled
+                    />
                   </div>
                 </div>
                 <div class="col-12 md:col-6">
                   <div class="field">
-                    <label class="font-bold block mb-2">Role</label>
-                    <Dropdown
-                      v-model="editForm.role"
-                      :options="roleOptions"
+                    <label class="font-bold block mb-2">{{ t('auth.role') }}</label>
+                    <Dropdown 
+                      v-model="editForm.role" 
+                      :options="roleOptions" 
                       optionLabel="label"
                       optionValue="value"
                       class="w-full"
@@ -40,10 +48,10 @@
                 </div>
                 <div class="col-12 md:col-6">
                   <div class="field">
-                    <label class="font-bold block mb-2">Member Since</label>
-                    <InputText
-                      :value="formatDate(authStore.user.createdAt)"
-                      class="w-full"
+                    <label class="font-bold block mb-2">{{ t('profile.memberSince') }}</label>
+                    <InputText 
+                      :value="formatDate(authStore.user.createdAt)" 
+                      class="w-full" 
                       disabled
                     />
                   </div>
@@ -52,17 +60,22 @@
 
               <!-- Edit Actions -->
               <div class="flex gap-2 mt-4">
-                <Button
+                <Button 
                   v-if="!isEditing"
-                  label="Edit Profile"
-                  icon="pi pi-pencil"
+                  :label="t('profile.editProfile')" 
+                  icon="pi pi-pencil" 
                   @click="startEditing"
                 />
                 <template v-else>
-                  <Button label="Save" icon="pi pi-check" @click="saveProfile" :loading="loading" />
-                  <Button
-                    label="Cancel"
-                    icon="pi pi-times"
+                  <Button 
+                    :label="t('common.save')" 
+                    icon="pi pi-check" 
+                    @click="saveProfile"
+                    :loading="loading"
+                  />
+                  <Button 
+                    :label="t('common.cancel')" 
+                    icon="pi pi-times" 
                     severity="secondary"
                     @click="cancelEditing"
                   />
@@ -72,6 +85,7 @@
 
             <div v-else class="text-center p-4">
               <ProgressSpinner />
+              <span class="ml-2">{{ t('common.loading') }}</span>
             </div>
           </template>
         </Card>
@@ -81,26 +95,26 @@
           <template #title>
             <div class="flex align-items-center gap-2">
               <i class="pi pi-chart-bar"></i>
-              <span>Statistics</span>
+              <span>{{ t('profile.statistics') }}</span>
             </div>
           </template>
           <template #content>
             <div class="grid text-center">
               <div class="col-6 md:col-3">
                 <div class="text-2xl font-bold text-primary">{{ userStats.solvedProblems }}</div>
-                <div class="text-color-secondary text-sm">Solved</div>
+                <div class="text-color-secondary text-sm">{{ t('profile.solved') }}</div>
               </div>
               <div class="col-6 md:col-3">
                 <div class="text-2xl font-bold text-green-500">{{ userStats.easySolved }}</div>
-                <div class="text-color-secondary text-sm">Easy</div>
+                <div class="text-color-secondary text-sm">{{ t('problems.easy') }}</div>
               </div>
               <div class="col-6 md:col-3">
                 <div class="text-2xl font-bold text-orange-500">{{ userStats.mediumSolved }}</div>
-                <div class="text-color-secondary text-sm">Medium</div>
+                <div class="text-color-secondary text-sm">{{ t('problems.medium') }}</div>
               </div>
               <div class="col-6 md:col-3">
                 <div class="text-2xl font-bold text-red-500">{{ userStats.hardSolved }}</div>
-                <div class="text-color-secondary text-sm">Hard</div>
+                <div class="text-color-secondary text-sm">{{ t('problems.hard') }}</div>
               </div>
             </div>
           </template>
@@ -113,19 +127,19 @@
           <template #title>
             <div class="flex align-items-center gap-2">
               <i class="pi pi-history"></i>
-              <span>Recent Activity</span>
+              <span>{{ t('profile.recentActivity') }}</span>
             </div>
           </template>
           <template #content>
             <div v-if="recentActivity.length > 0" class="activity-list">
-              <div
-                v-for="activity in recentActivity"
-                :key="activity.id"
+              <div 
+                v-for="activity in recentActivity" 
+                :key="activity.id" 
                 class="activity-item flex align-items-center gap-3 mb-3"
               >
-                <Avatar
-                  :label="getActivityIcon(activity.type)"
-                  shape="circle"
+                <Avatar 
+                  :label="getActivityIcon(activity.type)" 
+                  shape="circle" 
                   size="large"
                   :class="getActivitySeverity(activity.type)"
                 />
@@ -139,7 +153,7 @@
             </div>
             <div v-else class="text-center text-color-secondary p-4">
               <i class="pi pi-inbox text-4xl mb-2"></i>
-              <p>No recent activity</p>
+              <p>{{ t('profile.noActivity') }}</p>
             </div>
           </template>
         </Card>
@@ -149,15 +163,15 @@
           <template #title>
             <div class="flex align-items-center gap-2">
               <i class="pi pi-star"></i>
-              <span>Badges</span>
+              <span>{{ t('profile.badges') }}</span>
             </div>
           </template>
           <template #content>
             <div class="flex flex-wrap gap-2">
-              <Badge
-                v-for="badge in userBadges"
+              <Badge 
+                v-for="badge in userBadges" 
                 :key="badge.id"
-                :value="badge.name"
+                :value="badge.name" 
                 :severity="badge.severity"
                 class="text-sm"
               />
@@ -173,6 +187,7 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { useToast } from 'primevue/usetoast'
+import { useI18n } from '@/composables/useI18n'
 
 // PrimeVue components
 import Card from 'primevue/card'
@@ -185,6 +200,7 @@ import Badge from 'primevue/badge'
 
 const authStore = useAuthStore()
 const toast = useToast()
+const { t } = useI18n()
 
 const isEditing = ref(false)
 const loading = ref(false)
@@ -308,32 +324,30 @@ const saveProfile = async () => {
   try {
     await authStore.updateUser({
       username: editForm.username,
-      role: editForm.role,
+      role: editForm.role
     })
-
+    
     toast.add({
       severity: 'success',
-      summary: 'Success',
-      detail: 'Profile updated successfully',
-      life: 3000,
+      summary: t('common.success'),
+      detail: t('profile.updateSuccess'),
+      life: 3000
     })
-
+    
     isEditing.value = false
   } catch (error: any) {
     toast.add({
       severity: 'error',
-      summary: 'Update Failed',
-      detail: error.message || 'Failed to update profile',
-      life: 5000,
+      summary: t('common.error'),
+      detail: error.message || t('profile.updateFailed'),
+      life: 5000
     })
   } finally {
     loading.value = false
   }
 }
 
-// Load user stats (mock data for now)
 onMounted(() => {
-  // In a real app, you would fetch this from your API
   userStats.value = {
     solvedProblems: 15,
     easySolved: 8,

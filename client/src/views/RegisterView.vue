@@ -4,72 +4,62 @@
       <template #title>
         <div class="flex align-items-center gap-2">
           <i class="pi pi-user-plus"></i>
-          <span>Create Account</span>
+          <span>{{ t('auth.registerTitle') }}</span>
         </div>
       </template>
       <template #content>
         <form @submit.prevent="handleRegister" class="flex flex-column gap-3">
           <div class="field">
-            <label for="username" class="block text-900 font-medium mb-2">Username</label>
+            <label for="username" class="block text-900 font-medium mb-2">{{ t('auth.username') }}</label>
             <InputText
               id="username"
               v-model="form.username"
               type="text"
               class="w-full"
-              placeholder="Enter your username"
+              :placeholder="t('auth.username')"
               :class="{ 'p-invalid': errors.username }"
             />
             <small v-if="errors.username" class="p-error">{{ errors.username }}</small>
           </div>
           
           <div class="field">
-            <label for="email" class="block text-900 font-medium mb-2">Email</label>
+            <label for="email" class="block text-900 font-medium mb-2">{{ t('auth.email') }}</label>
             <InputText
               id="email"
               v-model="form.email"
               type="email"
               class="w-full"
-              placeholder="Enter your email"
+              :placeholder="t('auth.email')"
               :class="{ 'p-invalid': errors.email }"
             />
             <small v-if="errors.email" class="p-error">{{ errors.email }}</small>
           </div>
           
           <div class="field">
-            <label for="password" class="block text-900 font-medium mb-2">Password</label>
+            <label for="password" class="block text-900 font-medium mb-2">{{ t('auth.password') }}</label>
             <Password
               id="password"
               v-model="form.password"
               class="w-full"
-              placeholder="Enter your password"
+              :placeholder="t('auth.password')"
               toggleMask
               :feedback="true"
               :class="{ 'p-invalid': errors.password }"
             >
               <template #header>
-                <h6 class="mb-2">Pick a password</h6>
-              </template>
-              <template #footer>
-                <Divider class="my-2" />
-                <p class="mb-2">Suggestions</p>
-                <ul class="pl-2 ml-2 mt-0 text-sm" style="line-height: 1.5">
-                  <li>At least one lowercase</li>
-                  <li>At least one uppercase</li>
-                  <li>At least one numeric</li>
-                  <li>Minimum 6 characters</li>
-                </ul>
+                <h6 class="mb-2">{{ t('auth.passwordRequirements') }}</h6>
               </template>
             </Password>
             <small v-if="errors.password" class="p-error">{{ errors.password }}</small>
           </div>
 
           <div class="field">
-            <label for="confirmPassword" class="block text-900 font-medium mb-2">Confirm Password</label>
+            <label for="confirmPassword" class="block text-900 font-medium mb-2">{{ t('auth.confirmPassword') }}</label>
             <Password
               id="confirmPassword"
               v-model="form.confirmPassword"
               class="w-full"
-              placeholder="Confirm your password"
+              :placeholder="t('auth.confirmPassword')"
               toggleMask
               :feedback="false"
               :class="{ 'p-invalid': errors.confirmPassword }"
@@ -78,22 +68,22 @@
           </div>
 
           <div class="field">
-            <label for="role" class="block text-900 font-medium mb-2">Role</label>
+            <label for="role" class="block text-900 font-medium mb-2">{{ t('auth.role') }}</label>
             <Dropdown
               id="role"
               v-model="form.role"
               :options="roleOptions"
               optionLabel="label"
               optionValue="value"
-              placeholder="Select your role"
+              :placeholder="t('auth.role')"
               class="w-full"
             />
-            <small class="text-color-secondary text-sm">Choose "Interviewer" if you want to create problems</small>
+            <small class="text-color-secondary text-sm">{{ t('auth.roleHint') }}</small>
           </div>
           
           <Button 
             type="submit" 
-            label="Create Account" 
+            :label="t('auth.register')" 
             class="w-full mt-3" 
             :loading="authStore.loading"
             size="large"
@@ -103,9 +93,9 @@
         <Divider />
         
         <div class="text-center">
-          <p class="text-600">Already have an account?</p>
+          <p class="text-600">{{ t('auth.hasAccount') }}</p>
           <Button 
-            label="Login" 
+            :label="t('auth.login')" 
             link 
             @click="$router.push('/login')"
           />
@@ -120,6 +110,7 @@ import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useToast } from 'primevue/usetoast'
+import { useI18n } from '@/composables/useI18n'
 
 // PrimeVue components
 import Card from 'primevue/card'
@@ -132,6 +123,7 @@ import Dropdown from 'primevue/dropdown'
 const router = useRouter()
 const authStore = useAuthStore()
 const toast = useToast()
+const { t } = useI18n()
 
 const form = reactive({
   username: '',
@@ -149,55 +141,47 @@ const errors = reactive({
 })
 
 const roleOptions = ref([
-  { label: 'User', value: 'user' },
-  { label: 'Interviewer', value: 'interviewer' },
-  { label: 'Admin', value: 'admin' }
+  { label: t('roles.user'), value: 'user' },
+  { label: t('roles.interviewer'), value: 'interviewer' },
+  { label: t('roles.admin'), value: 'admin' }
 ])
 
 const validateForm = () => {
   let isValid = true
   
-  // Reset errors
   Object.keys(errors).forEach(key => {
     errors[key as keyof typeof errors] = ''
   })
 
-  // Username validation
   if (!form.username.trim()) {
-    errors.username = 'Username is required'
+    errors.username = t('validation.required', { field: t('auth.username') })
     isValid = false
   } else if (form.username.length < 3) {
-    errors.username = 'Username must be at least 3 characters'
+    errors.username = t('validation.usernameLength', { length: 3 })
     isValid = false
   }
 
-  // Email validation
   if (!form.email) {
-    errors.email = 'Email is required'
+    errors.email = t('validation.required', { field: t('auth.email') })
     isValid = false
   } else if (!/\S+@\S+\.\S+/.test(form.email)) {
-    errors.email = 'Email is invalid'
+    errors.email = t('validation.emailInvalid')
     isValid = false
   }
 
-  // Password validation
   if (!form.password) {
-    errors.password = 'Password is required'
+    errors.password = t('validation.required', { field: t('auth.password') })
     isValid = false
   } else if (form.password.length < 6) {
-    errors.password = 'Password must be at least 6 characters'
-    isValid = false
-  } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(form.password)) {
-    errors.password = 'Password must contain at least one lowercase, one uppercase letter and one number'
+    errors.password = t('validation.passwordLength', { length: 6 })
     isValid = false
   }
 
-  // Confirm password validation
   if (!form.confirmPassword) {
-    errors.confirmPassword = 'Please confirm your password'
+    errors.confirmPassword = t('validation.required', { field: t('auth.confirmPassword') })
     isValid = false
   } else if (form.password !== form.confirmPassword) {
-    errors.confirmPassword = 'Passwords do not match'
+    errors.confirmPassword = t('validation.passwordsMatch')
     isValid = false
   }
 
@@ -217,8 +201,8 @@ const handleRegister = async () => {
     
     toast.add({
       severity: 'success',
-      summary: 'Success',
-      detail: 'Account created successfully!',
+      summary: t('common.success'),
+      detail: t('auth.registerSuccess'),
       life: 3000
     })
     
@@ -226,8 +210,8 @@ const handleRegister = async () => {
   } catch (error: any) {
     toast.add({
       severity: 'error',
-      summary: 'Registration Failed',
-      detail: error.message || 'Failed to create account',
+      summary: t('auth.registerFailed'),
+      detail: error.message || t('auth.registerFailed'),
       life: 5000
     })
   }

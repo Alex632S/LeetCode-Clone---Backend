@@ -42,7 +42,6 @@ import { apiService } from '@/services/api'
 import type { Comment } from '@/types'
 import CommentItem from '@/components/comments/CommentItem.vue'
 
-// PrimeVue components
 import Card from 'primevue/card'
 import Textarea from 'primevue/textarea'
 import Button from 'primevue/button'
