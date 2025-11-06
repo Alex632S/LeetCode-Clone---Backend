@@ -80,6 +80,6 @@ export const useAuthStore = defineStore('auth', () => {
     register,
     logout,
     checkAuth,
-    updateUser // ← Добавляем метод в возвращаемый объект
+    updateUser
   }
 })

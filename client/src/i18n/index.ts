@@ -3,16 +3,27 @@ import { createI18n } from 'vue-i18n'
 import en from './locales/en.json'
 import ru from './locales/ru.json'
 
-export type Locale = 'en' | 'ru'
+const locales = {
+  en,
+  ru,
+} as const
+
+export type Locale = keyof typeof locales
+
+const getSavedLocale = (): Locale => {
+  const saved = localStorage.getItem('preferred-locale') as Locale
+  return saved && Object.keys(locales).includes(saved) ? saved : 'en'
+}
+
+export const saveLocale = (locale: Locale): void => {
+  localStorage.setItem('preferred-locale', locale)
+}
 
 const i18n = createI18n({
   legacy: false,
-  locale: 'en' as Locale,
-  fallbackLocale: 'en' as Locale,
-  messages: {
-    en,
-    ru,
-  },
+  locale: getSavedLocale(),
+  fallbackLocale: 'en',
+  messages: locales,
 })
 
 export const installI18n = (app: App) => {
