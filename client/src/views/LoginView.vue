@@ -16,9 +16,11 @@
             />
             <small v-if="errors.email" class="p-error">{{ errors.email }}</small>
           </div>
-          
+
           <div class="field">
-            <label for="password" class="block text-900 font-medium mb-2">{{ t('auth.password') }}</label>
+            <label for="password" class="block text-900 font-medium mb-2">{{
+              t('auth.password')
+            }}</label>
             <Password
               id="password"
               v-model="form.password"
@@ -30,24 +32,20 @@
             />
             <small v-if="errors.password" class="p-error">{{ errors.password }}</small>
           </div>
-          
-          <Button 
-            type="submit" 
-            :label="t('auth.login')" 
-            class="w-full" 
+
+          <Button
+            type="submit"
+            :label="t('auth.login')"
+            class="w-full"
             :loading="authStore.loading"
           />
         </form>
-        
+
         <Divider />
-        
+
         <div class="text-center">
           <p class="text-600">{{ t('auth.noAccount') }}</p>
-          <Button 
-            :label="t('auth.register')" 
-            link 
-            @click="$router.push('/register')"
-          />
+          <Button :label="t('auth.register')" link @click="$router.push('/register')" />
         </div>
       </template>
     </Card>
@@ -75,12 +73,12 @@ const { t } = useI18n()
 
 const form = reactive({
   email: '',
-  password: ''
+  password: '',
 })
 
 const errors = reactive({
   email: '',
-  password: ''
+  password: '',
 })
 
 const validateForm = () => {
@@ -116,7 +114,7 @@ const handleLogin = async () => {
       severity: 'success',
       summary: t('common.success'),
       detail: t('auth.loginSuccess'),
-      life: 3000
+      life: 3000,
     })
     router.push('/')
   } catch (error: any) {
@@ -124,7 +122,7 @@ const handleLogin = async () => {
       severity: 'error',
       summary: t('auth.loginFailed'),
       detail: error.message || t('auth.invalidCredentials'),
-      life: 5000
+      life: 5000,
     })
   }
 }
@@ -132,10 +130,14 @@ const handleLogin = async () => {
 
 <style scoped>
 .login-container {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #e7ebe9;
 }
 
 .login-card {
   background: white;
+  max-width: 400px;
+}
+:deep(.p-password input) {
+  width: 100%;
 }
 </style>

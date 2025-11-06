@@ -35,25 +35,21 @@
               </div>
             </template>
           </Dropdown>
-          
+
           <div v-if="authStore.isAuthenticated" class="flex align-items-center gap-3">
             <Avatar :label="userInitials" shape="circle" />
             <span class="font-medium">{{ authStore.user?.username }}</span>
-            <Button 
-              :label="t('auth.logout')" 
-              severity="secondary" 
+            <Button
+              :label="t('auth.logout')"
+              severity="secondary"
               @click="authStore.logout()"
               size="small"
             />
           </div>
           <div v-else class="flex gap-2">
-            <Button 
-              :label="t('auth.login')" 
-              @click="$router.push('/login')"
-              size="small"
-            />
-            <Button 
-              :label="t('auth.register')" 
+            <Button :label="t('auth.login')" @click="$router.push('/login')" size="small" />
+            <Button
+              :label="t('auth.register')"
               severity="secondary"
               @click="$router.push('/register')"
               size="small"
@@ -75,7 +71,6 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useI18n } from '@/composables/useI18n'
 import type { Locale } from '@/i18n'
-import type { LocaleOption } from '@/types/i18n'
 import Menubar from 'primevue/menubar'
 import Button from 'primevue/button'
 import Avatar from 'primevue/avatar'
@@ -95,27 +90,59 @@ const userInitials = computed(() => {
 })
 
 const getLocaleName = (localeCode: Locale): string => {
-  const localeObj = availableLocales.find(loc => loc.code === localeCode)
+  const localeObj = availableLocales.find((loc) => loc.code === localeCode)
   return localeObj?.name || localeCode
 }
 
 const getLocaleFlag = (localeCode: Locale): string => {
-  const localeObj = availableLocales.find(loc => loc.code === localeCode)
+  const localeObj = availableLocales.find((loc) => loc.code === localeCode)
   return localeObj?.flag || '🌐'
 }
 
-const menuItems = computed(() => [
-  {
-    label: t('navigation.problems'),
-    icon: 'pi pi-list',
-    command: () => router.push('/')
-  },
-  ...(authStore.isAuthenticated ? [{
-    label: t('navigation.profile'),
-    icon: 'pi pi-user',
-    command: () => router.push('/profile')
-  }] : [])
-])
+const menuItems = computed(() => {
+  const items = [
+    {
+      label: t('navigation.problems'),
+      icon: 'pi pi-list',
+      command: () => router.push('/'),
+    },
+  ]
+
+  if (authStore.isAuthenticated) {
+    // Кнопка создания задачи для админов и интервьюеров
+    if (authStore.user?.role === 'admin' || authStore.user?.role === 'interviewer') {
+      items.push({
+        label: t('problems.createProblem'),
+        icon: 'pi pi-plus',
+        command: () => router.push('/problems/create'),
+      })
+    }
+
+    items.push(
+      {
+        label: t('navigation.profile'),
+        icon: 'pi pi-user',
+        command: () => router.push('/profile'),
+      },
+      {
+        label: t('tags.title'),
+        icon: 'pi pi-tags',
+        command: () => router.push('/tags'),
+      },
+    )
+
+    // Админские пункты меню
+    if (authStore.user?.role === 'admin') {
+      items.push({
+        label: t('admin.users'),
+        icon: 'pi pi-users',
+        command: () => router.push('/admin/users'),
+      })
+    }
+  }
+
+  return items
+})
 
 watch(currentLocale, (newLocale: Locale) => {
   setLocale(newLocale)
@@ -128,8 +155,8 @@ watch(locale, (newLocale) => {
 
 <style scoped>
 .main-content {
-  padding: 2rem;
-  max-width: 1400px;
-  margin: 0 auto;
+  padding: 1rem;
+  background: #e7ebe9;
+  min-height: 94vh;
 }
 </style>

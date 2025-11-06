@@ -1,5 +1,8 @@
 {
   "common": {
+    "actions": "Действия",
+    "id": "ID",
+    "create": "Создать",
     "appName": "LeetCode Клон",
     "loading": "Загрузка...",
     "save": "Сохранить",
@@ -24,6 +27,8 @@
     "ok": "OK"
   },
   "auth": {
+    "sessionExpired": "Ваша сессия истекла. Пожалуйста, войдите снова.",
+    "tokenInvalid": "Неверный токен. Пожалуйста, войдите снова.",
     "login": "Войти",
     "register": "Регистрация",
     "logout": "Выйти",
@@ -45,12 +50,29 @@
     "roleHint": "Выберите \"Интервьюер\" если хотите создавать задачи"
   },
   "navigation": {
+    "createProblem": "Создать задачу",
     "problems": "Задачи",
     "profile": "Профиль",
     "home": "Главная",
     "discussion": "Обсуждение"
   },
   "problems": {
+    "createProblem": "Создать задачу",
+    "editProblem": "Редактировать задачу",
+    "titlePlaceholder": "Введите название задачи",
+    "descriptionPlaceholder": "Опишите задачу подробно...",
+    "markdownSupported": "Поддерживается форматирование Markdown",
+    "addExample": "Добавить пример",
+    "inputPlaceholder": "Введите входные данные",
+    "outputPlaceholder": "Введите ожидаемый вывод",
+    "explanationPlaceholder": "Введите объяснение (необязательно)",
+    "unauthorized": "У вас нет прав для создания или редактирования задач",
+    "failedToLoad": "Не удалось загрузить задачу",
+    "failedToSave": "Не удалось сохранить задачу",
+    "createdSuccess": "Задача успешно создана",
+    "updatedSuccess": "Задача успешно обновлена",
+    "exampleValidation": "Пожалуйста, заполните все обязательные поля в примерах",
+    "update": "Обновить",
     "title": "Задачи",
     "subtitle": "Практикуйтесь в решении задач и улучшайте свои навыки",
     "difficulty": "Сложность",
@@ -89,7 +111,13 @@
     "createdAt": "Дата создания",
     "titleSort": "Названию",
     "difficultySort": "Сложности",
-    "ratingSort": "Рейтингу"
+    "ratingSort": "Рейтингу",
+    "created": "Создана",
+    "updated": "Обновлена",
+    "notFoundDescription": "Задача, которую вы ищете, не существует или была удалена.",
+    "ratingSubmitted": "Спасибо за вашу оценку!",
+    "failedToRate": "Не удалось отправить оценку",
+    "loginRequired": "Пожалуйста, войдите в систему, чтобы оценивать задачи"
   },
   "profile": {
     "title": "Профиль пользователя",
@@ -107,6 +135,9 @@
     "easySolved": "Легких решено",
     "mediumSolved": "Средних решено",
     "hardSolved": "Сложных решено"
+  },
+  "pagination": {
+    "pageInfo": "Страница {current} из {total}"
   },
   "comments": {
     "discussion": "Обсуждение",
@@ -126,6 +157,9 @@
     "likes": "Лайков"
   },
   "codeEditor": {
+    "comingSoon": "Скоро",
+    "editorDescription": "Продвинутый редактор кода с подсветкой синтаксиса и тестированием будет доступен скоро",
+    "featureInDevelopment": "Эта функция сейчас в разработке",
     "title": "Редактор кода",
     "runCode": "Запустить код",
     "submit": "Отправить",
@@ -149,6 +183,21 @@
     "user": "Пользователь",
     "interviewer": "Интервьюер",
     "admin": "Администратор"
+  },
+  "admin": {
+    "users": "Управление пользователями",
+    "usersSubtitle": "Управление пользователями платформы и их ролями",
+    "userRole": "Роль",
+    "createdAt": "Создан",
+    "updatedAt": "Обновлен",
+    "editUser": "Редактировать пользователя",
+    "memberSince": "Участник с",
+    "emailCannotBeChanged": "Email нельзя изменить",
+    "confirmDeleteUser": "Вы уверены, что хотите удалить этого пользователя? Это действие нельзя отменить.",
+    "failedToLoadUsers": "Не удалось загрузить пользователей",
+    "userUpdated": "Пользователь успешно обновлен",
+    "userDemoted": "Роль пользователя успешно обновлена",
+    "failedToUpdateUser": "Не удалось обновить пользователя"
   },
   "activity": {
     "problemSolved": "Решена задача \"{problem}\"",
@@ -201,6 +250,45 @@
     "forbidden": "Доступ запрещен",
     "notFound": "Ресурс не найден",
     "validationError": "Ошибка валидации"
+  },
+  "tags": {
+    "title": "Теги",
+    "subtitle": "Управление тегами и категориями задач",
+    "createTag": "Создать тег",
+    "editTag": "Редактировать тег",
+    "name": "Название",
+    "description": "Описание",
+    "color": "Цвет",
+    "searchPlaceholder": "Поиск тегов...",
+    "namePlaceholder": "Введите название тега",
+    "descriptionPlaceholder": "Введите описание тега (необязательно)",
+    "confirmDelete": "Вы уверены, что хотите удалить этот тег?",
+    "noTags": "Теги не найдены",
+    "tagCreated": "Тег успешно создан",
+    "tagUpdated": "Тег успешно обновлен",
+    "tagDeleted": "Тег успешно удален",
+    "failedToLoad": "Не удалось загрузить теги",
+    "failedToSave": "Не удалось сохранить тег",
+    "failedToDelete": "Не удалось удалить тег"
+  },
+  "files": {
+    "uploadPlaceholder": "Функциональность загрузки файлов будет доступна скоро",
+    "title": "Файлы",
+    "upload": "Загрузить файл",
+    "selectFile": "Выберите файл",
+    "chooseFile": "Выбрать файл",
+    "description": "Описание",
+    "uploadedFiles": "Загруженные файлы",
+    "fileName": "Имя файла",
+    "fileSize": "Размер файла",
+    "confirmDelete": "Вы уверены, что хотите удалить этот файл?"
+  },
+  "admin": {
+    "users": "Управление пользователями",
+    "userList": "Пользователи",
+    "userRole": "Роль",
+    "createdAt": "Создан",
+    "actions": "Действия"
   },
   "badges": {
     "firstProblem": "Первая задача",

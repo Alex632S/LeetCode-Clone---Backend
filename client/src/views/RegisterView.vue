@@ -10,7 +10,9 @@
       <template #content>
         <form @submit.prevent="handleRegister" class="flex flex-column gap-3">
           <div class="field">
-            <label for="username" class="block text-900 font-medium mb-2">{{ t('auth.username') }}</label>
+            <label for="username" class="block text-900 font-medium mb-2">{{
+              t('auth.username')
+            }}</label>
             <InputText
               id="username"
               v-model="form.username"
@@ -21,7 +23,7 @@
             />
             <small v-if="errors.username" class="p-error">{{ errors.username }}</small>
           </div>
-          
+
           <div class="field">
             <label for="email" class="block text-900 font-medium mb-2">{{ t('auth.email') }}</label>
             <InputText
@@ -34,9 +36,11 @@
             />
             <small v-if="errors.email" class="p-error">{{ errors.email }}</small>
           </div>
-          
+
           <div class="field">
-            <label for="password" class="block text-900 font-medium mb-2">{{ t('auth.password') }}</label>
+            <label for="password" class="block text-900 font-medium mb-2">{{
+              t('auth.password')
+            }}</label>
             <Password
               id="password"
               v-model="form.password"
@@ -54,7 +58,9 @@
           </div>
 
           <div class="field">
-            <label for="confirmPassword" class="block text-900 font-medium mb-2">{{ t('auth.confirmPassword') }}</label>
+            <label for="confirmPassword" class="block text-900 font-medium mb-2">{{
+              t('auth.confirmPassword')
+            }}</label>
             <Password
               id="confirmPassword"
               v-model="form.confirmPassword"
@@ -64,7 +70,9 @@
               :feedback="false"
               :class="{ 'p-invalid': errors.confirmPassword }"
             />
-            <small v-if="errors.confirmPassword" class="p-error">{{ errors.confirmPassword }}</small>
+            <small v-if="errors.confirmPassword" class="p-error">{{
+              errors.confirmPassword
+            }}</small>
           </div>
 
           <div class="field">
@@ -80,25 +88,21 @@
             />
             <small class="text-color-secondary text-sm">{{ t('auth.roleHint') }}</small>
           </div>
-          
-          <Button 
-            type="submit" 
-            :label="t('auth.register')" 
-            class="w-full mt-3" 
+
+          <Button
+            type="submit"
+            :label="t('auth.register')"
+            class="w-full mt-3"
             :loading="authStore.loading"
             size="large"
           />
         </form>
-        
+
         <Divider />
-        
+
         <div class="text-center">
           <p class="text-600">{{ t('auth.hasAccount') }}</p>
-          <Button 
-            :label="t('auth.login')" 
-            link 
-            @click="$router.push('/login')"
-          />
+          <Button :label="t('auth.login')" link @click="$router.push('/login')" />
         </div>
       </template>
     </Card>
@@ -130,26 +134,26 @@ const form = reactive({
   email: '',
   password: '',
   confirmPassword: '',
-  role: 'user' as 'user' | 'interviewer' | 'admin'
+  role: 'user' as 'user' | 'interviewer' | 'admin',
 })
 
 const errors = reactive({
   username: '',
   email: '',
   password: '',
-  confirmPassword: ''
+  confirmPassword: '',
 })
 
 const roleOptions = ref([
   { label: t('roles.user'), value: 'user' },
   { label: t('roles.interviewer'), value: 'interviewer' },
-  { label: t('roles.admin'), value: 'admin' }
+  { label: t('roles.admin'), value: 'admin' },
 ])
 
 const validateForm = () => {
   let isValid = true
-  
-  Object.keys(errors).forEach(key => {
+
+  Object.keys(errors).forEach((key) => {
     errors[key as keyof typeof errors] = ''
   })
 
@@ -196,23 +200,23 @@ const handleRegister = async () => {
       username: form.username,
       email: form.email,
       password: form.password,
-      role: form.role
+      role: form.role,
     })
-    
+
     toast.add({
       severity: 'success',
       summary: t('common.success'),
       detail: t('auth.registerSuccess'),
-      life: 3000
+      life: 3000,
     })
-    
+
     router.push('/')
   } catch (error: any) {
     toast.add({
       severity: 'error',
       summary: t('auth.registerFailed'),
       detail: error.message || t('auth.registerFailed'),
-      life: 5000
+      life: 5000,
     })
   }
 }
@@ -220,12 +224,13 @@ const handleRegister = async () => {
 
 <style scoped>
 .register-container {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #e7ebe9;
   padding: 2rem;
 }
 
 .register-card {
   background: white;
+  max-width: 400px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 }
 

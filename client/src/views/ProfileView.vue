@@ -16,29 +16,21 @@
                 <div class="col-12 md:col-6">
                   <div class="field">
                     <label class="font-bold block mb-2">{{ t('auth.username') }}</label>
-                    <InputText 
-                      v-model="editForm.username" 
-                      class="w-full" 
-                      :disabled="!isEditing"
-                    />
+                    <InputText v-model="editForm.username" class="w-full" :disabled="!isEditing" />
                   </div>
                 </div>
                 <div class="col-12 md:col-6">
                   <div class="field">
                     <label class="font-bold block mb-2">{{ t('auth.email') }}</label>
-                    <InputText 
-                      v-model="authStore.user.email" 
-                      class="w-full" 
-                      disabled
-                    />
+                    <InputText v-model="authStore.user.email" class="w-full" disabled />
                   </div>
                 </div>
                 <div class="col-12 md:col-6">
                   <div class="field">
                     <label class="font-bold block mb-2">{{ t('auth.role') }}</label>
-                    <Dropdown 
-                      v-model="editForm.role" 
-                      :options="roleOptions" 
+                    <Dropdown
+                      v-model="editForm.role"
+                      :options="roleOptions"
                       optionLabel="label"
                       optionValue="value"
                       class="w-full"
@@ -49,9 +41,9 @@
                 <div class="col-12 md:col-6">
                   <div class="field">
                     <label class="font-bold block mb-2">{{ t('profile.memberSince') }}</label>
-                    <InputText 
-                      :value="formatDate(authStore.user.createdAt)" 
-                      class="w-full" 
+                    <InputText
+                      :value="formatDate(authStore.user.createdAt)"
+                      class="w-full"
                       disabled
                     />
                   </div>
@@ -60,22 +52,22 @@
 
               <!-- Edit Actions -->
               <div class="flex gap-2 mt-4">
-                <Button 
+                <Button
                   v-if="!isEditing"
-                  :label="t('profile.editProfile')" 
-                  icon="pi pi-pencil" 
+                  :label="t('profile.editProfile')"
+                  icon="pi pi-pencil"
                   @click="startEditing"
                 />
                 <template v-else>
-                  <Button 
-                    :label="t('common.save')" 
-                    icon="pi pi-check" 
+                  <Button
+                    :label="t('common.save')"
+                    icon="pi pi-check"
                     @click="saveProfile"
                     :loading="loading"
                   />
-                  <Button 
-                    :label="t('common.cancel')" 
-                    icon="pi pi-times" 
+                  <Button
+                    :label="t('common.cancel')"
+                    icon="pi pi-times"
                     severity="secondary"
                     @click="cancelEditing"
                   />
@@ -89,77 +81,10 @@
             </div>
           </template>
         </Card>
-
-        <!-- User Statistics -->
-        <Card class="mt-4">
-          <template #title>
-            <div class="flex align-items-center gap-2">
-              <i class="pi pi-chart-bar"></i>
-              <span>{{ t('profile.statistics') }}</span>
-            </div>
-          </template>
-          <template #content>
-            <div class="grid text-center">
-              <div class="col-6 md:col-3">
-                <div class="text-2xl font-bold text-primary">{{ userStats.solvedProblems }}</div>
-                <div class="text-color-secondary text-sm">{{ t('profile.solved') }}</div>
-              </div>
-              <div class="col-6 md:col-3">
-                <div class="text-2xl font-bold text-green-500">{{ userStats.easySolved }}</div>
-                <div class="text-color-secondary text-sm">{{ t('problems.easy') }}</div>
-              </div>
-              <div class="col-6 md:col-3">
-                <div class="text-2xl font-bold text-orange-500">{{ userStats.mediumSolved }}</div>
-                <div class="text-color-secondary text-sm">{{ t('problems.medium') }}</div>
-              </div>
-              <div class="col-6 md:col-3">
-                <div class="text-2xl font-bold text-red-500">{{ userStats.hardSolved }}</div>
-                <div class="text-color-secondary text-sm">{{ t('problems.hard') }}</div>
-              </div>
-            </div>
-          </template>
-        </Card>
       </div>
 
       <div class="col-12 md:col-4">
-        <!-- Recent Activity -->
         <Card>
-          <template #title>
-            <div class="flex align-items-center gap-2">
-              <i class="pi pi-history"></i>
-              <span>{{ t('profile.recentActivity') }}</span>
-            </div>
-          </template>
-          <template #content>
-            <div v-if="recentActivity.length > 0" class="activity-list">
-              <div 
-                v-for="activity in recentActivity" 
-                :key="activity.id" 
-                class="activity-item flex align-items-center gap-3 mb-3"
-              >
-                <Avatar 
-                  :label="getActivityIcon(activity.type)" 
-                  shape="circle" 
-                  size="large"
-                  :class="getActivitySeverity(activity.type)"
-                />
-                <div class="flex-1">
-                  <div class="font-medium">{{ activity.description }}</div>
-                  <div class="text-color-secondary text-sm">
-                    {{ formatTimeAgo(activity.timestamp) }}
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div v-else class="text-center text-color-secondary p-4">
-              <i class="pi pi-inbox text-4xl mb-2"></i>
-              <p>{{ t('profile.noActivity') }}</p>
-            </div>
-          </template>
-        </Card>
-
-        <!-- User Badges -->
-        <Card class="mt-4">
           <template #title>
             <div class="flex align-items-center gap-2">
               <i class="pi pi-star"></i>
@@ -168,10 +93,10 @@
           </template>
           <template #content>
             <div class="flex flex-wrap gap-2">
-              <Badge 
-                v-for="badge in userBadges" 
+              <Badge
+                v-for="badge in userBadges"
                 :key="badge.id"
-                :value="badge.name" 
+                :value="badge.name"
                 :severity="badge.severity"
                 class="text-sm"
               />
@@ -324,23 +249,23 @@ const saveProfile = async () => {
   try {
     await authStore.updateUser({
       username: editForm.username,
-      role: editForm.role
+      role: editForm.role,
     })
-    
+
     toast.add({
       severity: 'success',
       summary: t('common.success'),
       detail: t('profile.updateSuccess'),
-      life: 3000
+      life: 3000,
     })
-    
+
     isEditing.value = false
   } catch (error: any) {
     toast.add({
       severity: 'error',
       summary: t('common.error'),
       detail: error.message || t('profile.updateFailed'),
-      life: 5000
+      life: 5000,
     })
   } finally {
     loading.value = false

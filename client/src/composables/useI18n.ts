@@ -13,6 +13,7 @@ export const useI18n = () => {
   const currentLocale = computed(() => locale.value as Locale)
 
   const translate: TranslateFunction = (key: string, params?: Record<string, any>) => {
+    //@ts-ignore
     return t(key, params)
   }
 

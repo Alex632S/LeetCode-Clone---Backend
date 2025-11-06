@@ -1,10 +1,10 @@
-import type { 
-  User, 
-  Problem, 
-  ProblemCreate, 
-  Comment, 
-  CommentCreate, 
-  Rating, 
+import type {
+  User,
+  Problem,
+  ProblemCreate,
+  Comment,
+  CommentCreate,
+  Rating,
   RatingCreate,
   ProblemFilters,
   ProblemsResponse,
@@ -16,48 +16,67 @@ import type {
   TagCreate,
   File,
   StatsResponse,
-  RatingResponse
+  RatingResponse,
 } from '@/types'
 
 class ApiService {
   private baseURL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
   private token: string | null = null
 
+  private authErrorCallback: (() => void) | null = null
+
   setToken(token: string) {
     this.token = token
   }
 
+  setAuthErrorCallback(callback: () => void) {
+    this.authErrorCallback = callback
+  }
+
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const headers = new Headers(options.headers)
-    
-    // Set Content-Type only if not already set and if we have a body
-    if (options.body && !headers.has('Content-Type')) {
+
+    if (options.body && !headers.has('Content-Type') && !(options.body instanceof FormData)) {
       headers.set('Content-Type', 'application/json')
     }
-    
-    // Set Authorization header if token exists
+
     if (this.token && !headers.has('Authorization')) {
       headers.set('Authorization', `Bearer ${this.token}`)
     }
 
-    const response = await fetch(`${this.baseURL}${endpoint}`, {
-      ...options,
-      headers,
-    })
+    try {
+      const response = await fetch(`${this.baseURL}${endpoint}`, {
+        ...options,
+        headers,
+      })
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ 
-        error: `HTTP Error: ${response.status} ${response.statusText}` 
-      }))
-      throw new Error(errorData.error || `API Error: ${response.status}`)
+      // Автоматический выход при 401 ошибке
+      if (response.status === 401) {
+        this.token = null
+        if (this.authErrorCallback) {
+          this.authErrorCallback()
+        }
+        throw new Error('Authentication required')
+      }
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({
+          error: `HTTP Error: ${response.status} ${response.statusText}`,
+        }))
+        throw new Error(errorData.error || `API Error: ${response.status}`)
+      }
+
+      if (response.status === 204) {
+        return {} as T
+      }
+
+      return response.json()
+    } catch (error) {
+      if (error instanceof Error && error.message === 'Authentication required') {
+        throw error
+      }
+      throw error
     }
-
-    // For 204 No Content responses
-    if (response.status === 204) {
-      return {} as T
-    }
-
-    return response.json()
   }
 
   // Authentication endpoints
@@ -88,7 +107,7 @@ class ApiService {
   // Problems endpoints
   async getProblems(filters: ProblemFilters = {}): Promise<ProblemsResponse> {
     const params = new URLSearchParams()
-    
+
     Object.entries(filters).forEach(([key, value]) => {
       if (value !== undefined && value !== null && value !== '') {
         if (Array.isArray(value)) {
@@ -100,10 +119,10 @@ class ApiService {
         }
       }
     })
-    
+
     const queryString = params.toString()
     const url = queryString ? `/problems?${queryString}` : '/problems'
-    
+
     return this.request<ProblemsResponse>(url)
   }
 
@@ -185,7 +204,11 @@ class ApiService {
   }
 
   // Tags endpoints
-  async getTags(search?: string, page?: number, limit?: number): Promise<{
+  async getTags(
+    search?: string,
+    page?: number,
+    limit?: number,
+  ): Promise<{
     tags: Tag[]
     total: number
     page: number
@@ -240,7 +263,7 @@ class ApiService {
     // For file uploads, we don't use the standard request method
     // because we need to handle FormData differently
     const headers: Record<string, string> = {}
-    
+
     if (this.token) {
       headers['Authorization'] = `Bearer ${this.token}`
     }
@@ -272,7 +295,7 @@ class ApiService {
 
   async downloadFile(id: number): Promise<Blob> {
     const headers = new Headers()
-    
+
     if (this.token) {
       headers.set('Authorization', `Bearer ${this.token}`)
     }
@@ -295,7 +318,10 @@ class ApiService {
   }
 
   // Users endpoints (admin only)
-  async getUsers(page?: number, limit?: number): Promise<{
+  async getUsers(
+    page?: number,
+    limit?: number,
+  ): Promise<{
     users: User[]
     total: number
     page: number
