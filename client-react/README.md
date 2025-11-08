@@ -1,73 +1,109 @@
 # React + TypeScript + Vite
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+### ОСНОВНОЙ ФУНКЦИОНАЛ
 
-Currently, two official plugins are available:
+#### Главная страница (`/`)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Приветствие для авторизованных пользователей
+- Статистика платформы (заглушки)
+- Быстрый доступ к основным разделам
+- Для неавторизованных - форма входа
 
-## React Compiler
+#### Список задач (`/problems`)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Отображение всех задач** в виде карточек
+- **Поиск по названию и описанию** в реальном времени
+- **Фильтрация по тегам** с возможностью:
+  - Добавления новых тегов
+  - Удаления выбранных тегов
+  - Комбинированной фильтрации по нескольким тегам
+- **Информация о задаче**:
+  - Название и описание
+  - Уровень сложности (цветовая индикация)
+  - Рейтинг и количество оценок
+  - Список тегов задачи
+- **Навигация** - клик по задаче ведет на страницу задачи
 
-## Expanding the ESLint configuration
+#### Список пользователей (`/users`)
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- **Отображение всех пользователей** с аватарами
+- **Поиск по имени и email** в реальном времени
+- **Система рейтинга**:
+  - Визуализация рейтинга звездами (1-5)
+  - Возможность редактирования рейтинга кликом по звездам
+  - Мгновенное обновление интерфейса
+- **Информация о пользователе**:
+  - Имя и email
+  - Роль (цветовая индикация)
+  - Дата регистрации
+- **Навигация** - клик по пользователю ведет на его профиль
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+#### Профиль пользователя (`/profile`, `/profile/:id`)
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+- **Личная информация**:
+  - Аватар (градиент с первой буквой имени)
+  - Имя пользователя и email
+  - Роль и дата регистрации
+- **Редактирование профиля**:
+  - Изменение имени пользователя
+  - Добавление биографии
+  - Указание социальных ссылок (GitHub, LinkedIn, Website)
+- **Статистика** (заглушки):
+  - Количество решенных задач по сложности
+  - Общий прогресс
+  - Рейтинг среди пользователей
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+#### Страница задачи (`/problems/:id`)
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+- **Полное описание** задачи с форматированием
+- **Примеры** входных/выходных данных
+- **Система тегов** задачи
+- **Рейтинговая система**:
+  - Просмотр среднего рейтинга
+  - Возможность поставить свою оценку
+- **Интерактивный редактор кода**:
+  - Подсветка синтаксиса
+  - Кнопки запуска и отправки решения
+  - Вывод результатов выполнения
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+#### Панель управления (`/interviewer`)
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+- **Доступ** только для интервьюеров и администраторов
+- **Управление задачами**:
+  - Создание новых задач
+  - Редактирование существующих
+  - Удаление задач
+- **Управление пользователями** (для админов):
+  - Просмотр всех пользователей
+  - Изменение ролей (user/interviewer/admin)
+
+### СИСТЕМА АУТЕНТИФИКАЦИИ
+
+- **JWT-авторизация** через заголовки
+- **Защита маршрутов** - доступ только для авторизованных
+- **Ролевая модель**:
+  - **user** - базовый доступ
+  - **interviewer** - создание/редактирование задач
+  - **admin** - полный доступ ко всем функциям
+
+### НАВИГАЦИЯ И МАРШРУТИЗАЦИЯ
+
+- **Redux Toolkit** для клиентской маршрутизации
+- **Динамические маршруты** (`/problems/:id`, `/profile/:id`)
+- **Защищенные маршруты** с редиректом на логин
+- **Умный хедер** с адаптацией под роль пользователя
+
+### ИНТЕРФЕЙС И UX
+
+- **Tailwind CSS** для стилизации
+- **Адаптивный дизайн** для мобильных устройств
+- **Интуитивная навигация** между разделами
+- **Визуальная обратная связь** при действиях пользователя
+- **Цветовая индикация** сложности задач и ролей пользователей
+
+### ТЕХНИЧЕСКИЕ ОСОБЕННОСТИ
+
+- **TypeScript** для типобезопасности
+- **React Hooks** для управления состоянием
+- **Локальное состояние** без избыточных зависимостей
+- **Обработка ошибок** с пользовательскими сообщениями
