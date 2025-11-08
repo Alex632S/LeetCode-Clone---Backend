@@ -53,7 +53,7 @@ export function InterviewerDashboard() {
                   : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
               }`}
             >
-              📝 Управление задачами
+               Управление задачами
             </button>
 
             {user.role === "admin" && (
@@ -65,7 +65,7 @@ export function InterviewerDashboard() {
                     : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                 }`}
               >
-                👥 Управление пользователями
+                 Управление пользователями
               </button>
             )}
           </nav>

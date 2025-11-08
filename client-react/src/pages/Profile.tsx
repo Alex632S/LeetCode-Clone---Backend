@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useAuth } from "../hooks/useAuth";
 import { useUser } from "../hooks/useUser";
 import type { UserUpdateRequest } from "../types";
@@ -140,42 +140,6 @@ export function Profile() {
               {user.bio && <p className="text-gray-700">{user.bio}</p>}
             </div>
           </div>
-
-          {/* Social Links */}
-          {(user.github || user.linkedin || user.website) && (
-            <div className="mt-4 flex space-x-4">
-              {user.github && (
-                <a
-                  href={user.github}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600 hover:text-blue-800 font-medium"
-                >
-                  GitHub
-                </a>
-              )}
-              {user.linkedin && (
-                <a
-                  href={user.linkedin}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600 hover:text-blue-800 font-medium"
-                >
-                  LinkedIn
-                </a>
-              )}
-              {user.website && (
-                <a
-                  href={user.website}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600 hover:text-blue-800 font-medium"
-                >
-                  Website
-                </a>
-              )}
-            </div>
-          )}
         </div>
 
         {/* Edit Form or Stats */}

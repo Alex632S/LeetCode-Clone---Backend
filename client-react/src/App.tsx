@@ -1,14 +1,21 @@
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 import { AuthProvider, useAuth } from "./hooks/useAuth";
 import { Layout } from "./components/common/Layout";
 import { Home } from "./pages/Home";
 import { LoginForm } from "./components/auth/LoginForm";
 import { Profile } from "./pages/Profile";
 import { ProblemDetailPage } from "./pages/ProblemDetailPage";
+import { ProblemsList } from "./pages/ProblemsList";
+import { UsersList } from "./pages/UsersList";
 import { InterviewerDashboard } from "./pages/InterviewerDashboard";
 
-function Router() {
+function AppRoutes() {
   const { user, loading } = useAuth();
-  const path = window.location.pathname;
 
   if (loading) {
     return (
@@ -20,71 +27,56 @@ function Router() {
     );
   }
 
-  // Главная страница - логин для неавторизованных, домашняя для авторизованных
-  if (path === "/" || path === "/login") {
-    return (
-      <Layout showHeader={!!user}>{user ? <Home /> : <LoginForm />}</Layout>
-    );
-  }
+  return (
+    <Routes>
+      {/* Публичные маршруты */}
+      <Route
+        path="/login"
+        element={!user ? <LoginForm /> : <Navigate to="/" />}
+      />
 
-  // Защищенные роуты
-  if (!user) {
-    return (
-      <Layout>
-        <div className="min-h-screen flex items-center justify-center">
-          <div className="text-center">
-            <h1 className="text-2xl font-bold text-red-600 mb-4">
-              Доступ запрещен
-            </h1>
-            <p className="text-gray-600 mb-4">Необходимо войти в систему</p>
-            <a
-              href="/"
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded"
-            >
-              Войти
-            </a>
-          </div>
-        </div>
-      </Layout>
-    );
-  }
+      {/* Защищенные маршруты */}
+      <Route path="/" element={user ? <Home /> : <Navigate to="/login" />} />
+      <Route
+        path="/profile"
+        element={user ? <Profile /> : <Navigate to="/login" />}
+      />
+      <Route
+        path="/profile/:userId"
+        element={user ? <Profile /> : <Navigate to="/login" />}
+      />
+      <Route
+        path="/problems"
+        element={user ? <ProblemsList /> : <Navigate to="/login" />}
+      />
+      <Route
+        path="/problems/:problemId"
+        element={user ? <ProblemDetailPage /> : <Navigate to="/login" />}
+      />
+      <Route
+        path="/users"
+        element={user ? <UsersList /> : <Navigate to="/login" />}
+      />
+      <Route
+        path="/interviewer"
+        element={user ? <InterviewerDashboard /> : <Navigate to="/login" />}
+      />
 
-  // Основной роутинг для авторизованных пользователей
-  switch (path) {
-    case "/profile":
-      return (
-        <Layout>
-          <Profile />
-        </Layout>
-      );
-    case "/interviewer":
-      return (
-        <Layout>
-          <InterviewerDashboard />
-        </Layout>
-      );
-    case path.startsWith("/problems/") ? path : "":
-      const problemId = path.split("/problems/")[1];
-      return (
-        <Layout>
-          <ProblemDetailPage />
-        </Layout>
-      );
-    case "/":
-    default:
-      return (
-        <Layout>
-          <Home />
-        </Layout>
-      );
-  }
+      {/* 404 */}
+      <Route path="*" element={<Navigate to="/" />} />
+    </Routes>
+  );
 }
 
 function App() {
   return (
-    <AuthProvider>
-      <Router />
-    </AuthProvider>
+    <Router>
+      <AuthProvider>
+        <Layout>
+          <AppRoutes />
+        </Layout>
+      </AuthProvider>
+    </Router>
   );
 }
 

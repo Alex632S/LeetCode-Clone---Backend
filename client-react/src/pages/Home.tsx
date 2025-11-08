@@ -26,22 +26,6 @@ export function Home() {
                   Мой профиль
                 </a>
               </div>
-
-              {/* Статистика платформы (заглушка) */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
-                <div className="bg-white rounded-lg shadow-md p-6">
-                  <div className="text-2xl font-bold text-blue-600">150+</div>
-                  <div className="text-gray-600">Задач в системе</div>
-                </div>
-                <div className="bg-white rounded-lg shadow-md p-6">
-                  <div className="text-2xl font-bold text-green-600">500+</div>
-                  <div className="text-gray-600">Пользователей</div>
-                </div>
-                <div className="bg-white rounded-lg shadow-md p-6">
-                  <div className="text-2xl font-bold text-purple-600">2k+</div>
-                  <div className="text-gray-600">Решений в день</div>
-                </div>
-              </div>
             </div>
           ) : (
             <div className="space-y-4">
@@ -58,48 +42,6 @@ export function Home() {
           )}
         </div>
       </div>
-
-      {/* Features Section */}
-      {user && (
-        <div className="bg-white py-16">
-          <div className="container mx-auto px-4">
-            <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">
-              Возможности платформы
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              <div className="text-center">
-                <div className="text-4xl mb-4">💻</div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                  Решение задач
-                </h3>
-                <p className="text-gray-600">
-                  Практикуйте алгоритмы и структуры данных на различных языках
-                  программирования
-                </p>
-              </div>
-              <div className="text-center">
-                <div className="text-4xl mb-4">📊</div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                  Отслеживание прогресса
-                </h3>
-                <p className="text-gray-600">
-                  Наблюдайте за своим прогрессом и улучшайте навыки решения
-                  задач
-                </p>
-              </div>
-              <div className="text-center">
-                <div className="text-4xl mb-4">🏆</div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                  Рейтинги
-                </h3>
-                <p className="text-gray-600">
-                  Соревнуйтесь с другими участниками и поднимайтесь в рейтинге
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
