@@ -4,14 +4,16 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
+import { Provider } from "react-redux";
+import { store } from "./store";
 import { AuthProvider, useAuth } from "./hooks/useAuth";
 import { Layout } from "./components/common/Layout";
 import { Home } from "./pages/Home";
 import { LoginForm } from "./components/auth/LoginForm";
 import { Profile } from "./pages/Profile";
 import { ProblemDetailPage } from "./pages/ProblemDetailPage";
-import { ProblemsList } from "./pages/ProblemsList";
-import { UsersList } from "./pages/UsersList";
+import { ProblemsList } from "@/pages/ProblemsList";
+import { UsersList } from "@/pages/UsersList";
 import { InterviewerDashboard } from "./pages/InterviewerDashboard";
 
 function AppRoutes() {
@@ -19,7 +21,7 @@ function AppRoutes() {
 
   if (loading) {
     return (
-      <Layout showHeader={false}>
+      <Layout>
         <div className="min-h-screen flex items-center justify-center">
           <div className="text-xl">Загрузка...</div>
         </div>
@@ -70,13 +72,15 @@ function AppRoutes() {
 
 function App() {
   return (
-    <Router>
-      <AuthProvider>
-        <Layout>
-          <AppRoutes />
-        </Layout>
-      </AuthProvider>
-    </Router>
+    <Provider store={store}>
+      <Router>
+        <AuthProvider>
+          <Layout>
+            <AppRoutes />
+          </Layout>
+        </AuthProvider>
+      </Router>
+    </Provider>
   );
 }
 
