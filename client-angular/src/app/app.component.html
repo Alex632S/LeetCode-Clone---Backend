@@ -1,0 +1,49 @@
+<!-- Базовый layout без sidebar для публичных страниц -->
+<div *ngIf="!isAdminRoute()">
+  <router-outlet></router-outlet>
+</div>
+
+<!-- Admin layout с sidebar -->
+<div *ngIf="isAdminRoute() && authService.isAuthenticated()">
+  <mat-toolbar color="primary">
+    <span>LeetCode CMS</span>
+    
+    <span class="spacer"></span>
+    
+    <button mat-button [matMenuTriggerFor]="userMenu">
+      <mat-icon>account_circle</mat-icon>
+      {{ authService.getCurrentUserValue()?.username }}
+    </button>
+    
+    <mat-menu #userMenu="matMenu">
+      <button mat-menu-item (click)="logout()">
+        <mat-icon>logout</mat-icon>
+        <span>Выйти</span>
+      </button>
+    </mat-menu>
+  </mat-toolbar>
+
+  <div class="admin-container">
+    <nav class="sidebar">
+      <mat-nav-list>
+        <a mat-list-item routerLink="/admin/problems" routerLinkActive="active">
+          <mat-icon>code</mat-icon>
+          Задачи
+        </a>
+        <a mat-list-item routerLink="/admin/users" routerLinkActive="active">
+          <mat-icon>people</mat-icon>
+          Пользователи
+        </a>
+      </mat-nav-list>
+    </nav>
+
+    <main class="main-content">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>
+
+<!-- Fallback для неавторизованных admin routes -->
+<div *ngIf="isAdminRoute() && !authService.isAuthenticated()">
+  <router-outlet></router-outlet>
+</div>

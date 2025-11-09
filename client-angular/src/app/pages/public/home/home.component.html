@@ -1,0 +1,33 @@
+<div class="home-container">
+  <mat-toolbar color="primary">
+    <span>LeetCode Clone</span>
+    <span class="spacer"></span>
+    <button mat-button routerLink="/login">Войти</button>
+    <button mat-raised-button color="accent" routerLink="/register">
+      Регистрация
+    </button>
+  </mat-toolbar>
+
+  <div class="hero-section">
+    <mat-card class="hero-card">
+      <mat-card-header>
+        <mat-card-title>Система управления контентом LeetCode</mat-card-title>
+        <mat-card-subtitle
+          >Панель администратора для управления задачами и
+          пользователями</mat-card-subtitle
+        >
+      </mat-card-header>
+
+      <mat-card-content>
+        <p>Для доступа к функциям администратора необходимо войти в систему.</p>
+
+        <div class="actions">
+          <button mat-raised-button color="primary" routerLink="/login">
+            Войти в систему
+          </button>
+          <button mat-button routerLink="/register">Создать аккаунт</button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>
