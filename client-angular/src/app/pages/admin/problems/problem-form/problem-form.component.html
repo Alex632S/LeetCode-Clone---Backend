@@ -1,1 +1,225 @@
-<p>problem-form works!</p>
+<div class="problem-form-container">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>
+        {{ isEditMode ? "Редактирование задачи" : "Создание новой задачи" }}
+      </mat-card-title>
+      <mat-card-subtitle>
+        {{
+          isEditMode
+            ? "Изменение данных задачи"
+            : "Добавление новой задачи на платформу"
+        }}
+      </mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <!-- Loading state -->
+      <div *ngIf="isLoading" class="loading-container">
+        <mat-spinner></mat-spinner>
+        <p>Загрузка данных задачи...</p>
+      </div>
+
+      <!-- Problem form -->
+      <form
+        *ngIf="!isLoading"
+        [formGroup]="problemForm"
+        (ngSubmit)="onSubmit()"
+        class="problem-form"
+      >
+        <!-- Title -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Название задачи</mat-label>
+          <input matInput formControlName="title" required />
+          <mat-icon matSuffix>title</mat-icon>
+          <mat-error *ngIf="problemForm.get('title')?.hasError('required')">
+            Название обязательно
+          </mat-error>
+          <mat-error *ngIf="problemForm.get('title')?.hasError('minlength')">
+            Минимум 3 символа
+          </mat-error>
+        </mat-form-field>
+
+        <!-- Description -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Описание задачи</mat-label>
+          <textarea matInput formControlName="description" required rows="6">
+          </textarea>
+          <mat-icon matSuffix>description</mat-icon>
+          <mat-error
+            *ngIf="problemForm.get('description')?.hasError('required')"
+          >
+            Описание обязательно
+          </mat-error>
+          <mat-error
+            *ngIf="problemForm.get('description')?.hasError('minlength')"
+          >
+            Минимум 10 символов
+          </mat-error>
+        </mat-form-field>
+
+        <!-- Difficulty -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Сложность</mat-label>
+          <mat-select formControlName="difficulty" required>
+            <mat-option
+              *ngFor="let difficulty of difficulties"
+              [value]="difficulty.value"
+            >
+              {{ difficulty.label }}
+            </mat-option>
+          </mat-select>
+          <mat-icon matSuffix>speed</mat-icon>
+          <mat-error
+            *ngIf="problemForm.get('difficulty')?.hasError('required')"
+          >
+            Выберите сложность
+          </mat-error>
+        </mat-form-field>
+
+        <!-- Tags -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Теги</mat-label>
+          <mat-select formControlName="tags" multiple>
+            <mat-option *ngFor="let tag of allTags" [value]="tag.name">
+              <span class="tag-option">
+                <span
+                  class="tag-color"
+                  [style.background-color]="tag.color || '#666'"
+                ></span>
+                {{ tag.name }}
+              </span>
+            </mat-option>
+          </mat-select>
+          <mat-icon matSuffix>local_offer</mat-icon>
+        </mat-form-field>
+
+        <!-- Examples -->
+        <mat-accordion class="examples-accordion">
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <mat-panel-title> Примеры ввода/вывода </mat-panel-title>
+              <mat-panel-description>
+                {{ examplesFormArray.length }} примеров
+              </mat-panel-description>
+            </mat-expansion-panel-header>
+
+            <div formArrayName="examples" class="examples-container">
+              <div
+                *ngFor="
+                  let example of examplesFormArray.controls;
+                  let i = index
+                "
+                [formGroupName]="i"
+                class="example-item"
+              >
+                <h4>Пример {{ i + 1 }}</h4>
+
+                <div class="example-row">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Входные данные</mat-label>
+                    <textarea
+                      matInput
+                      formControlName="input"
+                      rows="3"
+                      required
+                    ></textarea>
+                    <mat-error
+                      *ngIf="example.get('input')?.hasError('required')"
+                    >
+                      Входные данные обязательны
+                    </mat-error>
+                  </mat-form-field>
+                </div>
+
+                <div class="example-row">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Выходные данные</mat-label>
+                    <textarea
+                      matInput
+                      formControlName="output"
+                      rows="3"
+                      required
+                    ></textarea>
+                    <mat-error
+                      *ngIf="example.get('output')?.hasError('required')"
+                    >
+                      Выходные данные обязательны
+                    </mat-error>
+                  </mat-form-field>
+                </div>
+
+                <div class="example-row">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Объяснение (опционально)</mat-label>
+                    <textarea
+                      matInput
+                      formControlName="explanation"
+                      rows="2"
+                    ></textarea>
+                  </mat-form-field>
+                </div>
+
+                <div class="example-actions">
+                  <button
+                    mat-icon-button
+                    color="warn"
+                    type="button"
+                    (click)="removeExample(i)"
+                    [disabled]="examplesFormArray.length === 1"
+                  >
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+
+                <mat-divider
+                  *ngIf="i < examplesFormArray.length - 1"
+                ></mat-divider>
+              </div>
+            </div>
+
+            <div class="add-example-action">
+              <button
+                mat-button
+                color="primary"
+                type="button"
+                (click)="addExample()"
+              >
+                <mat-icon>add</mat-icon>
+                Добавить пример
+              </button>
+            </div>
+          </mat-expansion-panel>
+        </mat-accordion>
+
+        <!-- Form actions -->
+        <div class="form-actions">
+          <button
+            mat-button
+            type="button"
+            (click)="onCancel()"
+            class="cancel-button"
+          >
+            Отмена
+          </button>
+          <button
+            mat-raised-button
+            color="primary"
+            type="submit"
+            [disabled]="!problemForm.valid || isSubmitting"
+            class="submit-button"
+          >
+            <mat-spinner
+              diameter="20"
+              *ngIf="isSubmitting"
+              class="button-spinner"
+            ></mat-spinner>
+            <span *ngIf="!isSubmitting">
+              {{ isEditMode ? "Обновить задачу" : "Создать задачу" }}
+            </span>
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

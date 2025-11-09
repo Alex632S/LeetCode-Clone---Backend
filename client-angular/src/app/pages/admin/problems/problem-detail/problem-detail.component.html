@@ -1,1 +1,145 @@
-<p>problem-detail works!</p>
+<div class="problem-detail-container">
+  <!-- Loading state -->
+  <div *ngIf="isLoading" class="loading-container">
+    <mat-spinner></mat-spinner>
+    <p>Загрузка задачи...</p>
+  </div>
+
+  <!-- Problem details -->
+  <div *ngIf="!isLoading && problem" class="problem-content">
+    <div class="header-actions">
+      <button mat-button routerLink="/admin/problems" class="back-button">
+        <mat-icon>arrow_back</mat-icon>
+        Назад к списку
+      </button>
+
+      <button mat-raised-button color="accent" (click)="editProblem()">
+        <mat-icon>edit</mat-icon>
+        Редактировать
+      </button>
+    </div>
+
+    <mat-card class="problem-card">
+      <mat-card-header>
+        <mat-card-title class="problem-title">
+          {{ problem.title }}
+        </mat-card-title>
+
+        <div class="problem-meta">
+          <span
+            class="difficulty-badge"
+            [style.background-color]="getDifficultyColor(problem.difficulty)"
+          >
+            {{ getDifficultyText(problem.difficulty) }}
+          </span>
+
+          <div class="rating-info" *ngIf="problem.averageRating">
+            <mat-icon class="rating-icon">star</mat-icon>
+            <span>{{ problem.averageRating.toFixed(1) }}</span>
+            <span class="rating-count">({{ problem.ratingCount }})</span>
+          </div>
+        </div>
+      </mat-card-header>
+
+      <mat-card-content>
+        <!-- Tags -->
+        <div
+          class="tags-section"
+          *ngIf="problem.tags && problem.tags.length > 0"
+        >
+          <mat-chip-set>
+            <mat-chip
+              *ngFor="let tag of problem.tags"
+              class="tag-chip"
+              [style.background]="'#e3f2fd'"
+              [style.color]="'#1976d2'"
+            >
+              {{ tag }}
+            </mat-chip>
+          </mat-chip-set>
+        </div>
+
+        <!-- Description -->
+        <section class="description-section">
+          <h3>Описание задачи</h3>
+          <div
+            class="description-content"
+            [innerHTML]="formatDescription(problem.description)"
+          ></div>
+        </section>
+
+        <!-- Examples -->
+        <section
+          class="examples-section"
+          *ngIf="problem.examples && problem.examples.length > 0"
+        >
+          <h3>Примеры</h3>
+
+          <mat-accordion class="examples-accordion">
+            <mat-expansion-panel
+              *ngFor="let example of problem.examples; let i = index"
+              [expanded]="i === 0"
+            >
+              <mat-expansion-panel-header>
+                <mat-panel-title>Пример {{ i + 1 }}</mat-panel-title>
+              </mat-expansion-panel-header>
+
+              <div class="example-content">
+                <div class="example-row">
+                  <strong>Входные данные:</strong>
+                  <pre class="example-code">{{ example.input }}</pre>
+                </div>
+
+                <div class="example-row">
+                  <strong>Выходные данные:</strong>
+                  <pre class="example-code">{{ example.output }}</pre>
+                </div>
+
+                <div class="example-row" *ngIf="example.explanation">
+                  <strong>Объяснение:</strong>
+                  <p class="explanation-text">{{ example.explanation }}</p>
+                </div>
+              </div>
+            </mat-expansion-panel>
+          </mat-accordion>
+        </section>
+
+        <!-- Metadata -->
+        <section class="metadata-section">
+          <mat-divider></mat-divider>
+
+          <div class="metadata-grid">
+            <div class="metadata-item">
+              <mat-icon>calendar_today</mat-icon>
+              <span>Создана: {{ formatDate(problem.createdAt) }}</span>
+            </div>
+
+            <div class="metadata-item">
+              <mat-icon>update</mat-icon>
+              <span>Обновлена: {{ formatDate(problem.updatedAt) }}</span>
+            </div>
+
+            <div class="metadata-item">
+              <mat-icon>code</mat-icon>
+              <span>ID: {{ problem.id }}</span>
+            </div>
+          </div>
+        </section>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Error state -->
+  <div *ngIf="!isLoading && !problem" class="error-state">
+    <mat-card>
+      <mat-card-content class="error-content">
+        <mat-icon>error_outline</mat-icon>
+        <h3>Задача не найдена</h3>
+        <p>Запрашиваемая задача не существует или была удалена</p>
+        <button mat-raised-button color="primary" routerLink="/admin/problems">
+          Вернуться к списку задач
+        </button>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

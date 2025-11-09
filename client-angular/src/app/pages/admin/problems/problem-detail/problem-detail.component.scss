@@ -1,0 +1,262 @@
+.problem-detail-container {
+  padding: 20px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+
+  p {
+    margin-top: 16px;
+    color: #666;
+  }
+}
+
+.header-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+
+  .back-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+}
+
+.problem-card {
+  margin-bottom: 24px;
+}
+
+.problem-title {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #333;
+}
+
+.problem-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.difficulty-badge {
+  padding: 6px 16px;
+  border-radius: 20px;
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.rating-info {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #666;
+  font-size: 14px;
+
+  .rating-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: #ffc107;
+  }
+
+  .rating-count {
+    color: #999;
+  }
+}
+
+.tags-section {
+  margin: 20px 0;
+
+  .tag-chip {
+    font-weight: 500;
+  }
+}
+
+.description-section {
+  margin: 32px 0;
+
+  h3 {
+    color: #333;
+    margin-bottom: 16px;
+    font-weight: 600;
+  }
+
+  .description-content {
+    line-height: 1.6;
+    color: #444;
+
+    pre {
+      background: #f5f5f5;
+      padding: 16px;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin: 16px 0;
+      border: 1px solid #e0e0e0;
+    }
+
+    code {
+      background: #f5f5f5;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: "Courier New", monospace;
+      font-size: 14px;
+    }
+  }
+}
+
+.examples-section {
+  margin: 32px 0;
+
+  h3 {
+    color: #333;
+    margin-bottom: 16px;
+    font-weight: 600;
+  }
+}
+
+.examples-accordion {
+  margin-top: 16px;
+}
+
+.example-content {
+  padding: 8px 0;
+}
+
+.example-row {
+  margin-bottom: 20px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  strong {
+    display: block;
+    margin-bottom: 8px;
+    color: #333;
+  }
+}
+
+.example-code {
+  background: #f8f9fa;
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+  font-family: "Courier New", monospace;
+  font-size: 14px;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  word-break: break-all;
+  margin: 0;
+}
+
+.explanation-text {
+  background: #f8f9fa;
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.metadata-section {
+  margin-top: 32px;
+}
+
+.metadata-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.metadata-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: #f8f9fa;
+  border-radius: 8px;
+
+  mat-icon {
+    color: #666;
+  }
+
+  span {
+    color: #555;
+    font-size: 14px;
+  }
+}
+
+.error-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+}
+
+.error-content {
+  text-align: center;
+  padding: 40px;
+
+  mat-icon {
+    font-size: 64px;
+    width: 64px;
+    height: 64px;
+    color: #f44336;
+    margin-bottom: 16px;
+  }
+
+  h3 {
+    color: #333;
+    margin-bottom: 8px;
+  }
+
+  p {
+    color: #666;
+    margin-bottom: 24px;
+  }
+}
+
+// Адаптивность
+@media (max-width: 768px) {
+  .problem-detail-container {
+    padding: 10px;
+  }
+
+  .header-actions {
+    flex-direction: column;
+    gap: 16px;
+    align-items: stretch;
+
+    .back-button {
+      align-self: flex-start;
+    }
+  }
+
+  .problem-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .metadata-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .problem-title {
+    font-size: 20px;
+  }
+}
