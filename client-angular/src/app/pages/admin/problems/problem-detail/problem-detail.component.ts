@@ -12,8 +12,8 @@ import { MatDividerModule } from '@angular/material/divider';
 
 import { ProblemsService } from '../../../../services/problems.service';
 import { Problem } from '../../../../interfaces/problem.interface';
-import { FormattingService } from '../../../../helpers/formatting.service';
-import { DifficultyService } from '../../../../helpers/difficulty.service';
+import { FormattingService } from '../../../../helpers/utils/formatting.utils';
+import { DifficultyService } from '../../../../helpers/utils/difficulty.utils';
 
 @Component({
   selector: 'app-problem-detail',
