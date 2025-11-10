@@ -1,54 +1,77 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './guards/auth.guard';
 
-// Components
-import { LoginComponent } from './components/auth/login/login.component';
-import { RegisterComponent } from './components/auth/register/register.component';
-import { HomeComponent } from './pages/public/home/home.component';
-import { ProblemListComponent } from './pages/admin/problems/problem-list/problem-list.component';
-import { ProblemDetailComponent } from './pages/admin/problems/problem-detail/problem-detail.component';
-import { ProblemFormComponent } from './pages/admin/problems/problem-form/problem-form.component';
-import { UserListComponent } from './pages/admin/users/user-list/user-list.component';
-import { UserEditComponent } from './pages/admin/users/user-edit/user-edit.component';
-
 export const routes: Routes = [
   // Public routes
-  { path: '', component: HomeComponent },
-  { path: 'login', component: LoginComponent },
-  { path: 'register', component: RegisterComponent },
+  {
+    path: '',
+    loadComponent: () =>
+      import('./pages/public/home/home.component').then((m) => m.HomeComponent),
+  },
+  {
+    path: 'login',
+    loadComponent: () =>
+      import('./components/auth/login/login.component').then(
+        (m) => m.LoginComponent
+      ),
+  },
+  {
+    path: 'register',
+    loadComponent: () =>
+      import('./components/auth/register/register.component').then(
+        (m) => m.RegisterComponent
+      ),
+  },
 
   // Admin routes (protected)
   {
     path: 'admin/problems',
-    component: ProblemListComponent,
+    loadComponent: () =>
+      import('./pages/admin/problems/problem-list/problem-list.component').then(
+        (m) => m.ProblemListComponent
+      ),
     canActivate: [authGuard],
   },
   {
     path: 'admin/problems/new',
-    component: ProblemFormComponent,
+    loadComponent: () =>
+      import('./pages/admin/problems/problem-form/problem-form.component').then(
+        (m) => m.ProblemFormComponent
+      ),
     canActivate: [authGuard],
   },
   {
     path: 'admin/problems/:id',
-    component: ProblemDetailComponent,
+    loadComponent: () =>
+      import(
+        './pages/admin/problems/problem-detail/problem-detail.component'
+      ).then((m) => m.ProblemDetailComponent),
     canActivate: [authGuard],
   },
   {
     path: 'admin/problems/:id/edit',
-    component: ProblemFormComponent,
+    loadComponent: () =>
+      import('./pages/admin/problems/problem-form/problem-form.component').then(
+        (m) => m.ProblemFormComponent
+      ),
     canActivate: [authGuard],
   },
   {
     path: 'admin/users',
-    component: UserListComponent,
+    loadComponent: () =>
+      import('./pages/admin/users/user-list/user-list.component').then(
+        (m) => m.UserListComponent
+      ),
     canActivate: [authGuard],
   },
   {
     path: 'admin/users/:id/edit',
-    component: UserEditComponent,
+    loadComponent: () =>
+      import('./pages/admin/users/user-edit/user-edit.component').then(
+        (m) => m.UserEditComponent
+      ),
     canActivate: [authGuard],
   },
 
-  // Redirect
   { path: '**', redirectTo: '' },
 ];
