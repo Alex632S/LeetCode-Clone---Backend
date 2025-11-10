@@ -16,12 +16,14 @@
           <mat-label>Имя пользователя</mat-label>
           <input matInput formControlName="username" required maxlength="30" />
           <mat-icon matSuffix>person</mat-icon>
-          <mat-hint align="end"
-            >{{ registerForm.get("username")?.value?.length || 0 }}/30</mat-hint
-          >
-          <mat-error *ngIf="registerForm.get('username')?.invalid">
+          <mat-hint align="end">
+            {{ registerForm.get("username")?.value?.length || 0 }}/30
+          </mat-hint>
+          @if (registerForm.get('username')?.invalid) {
+          <mat-error>
             {{ getUsernameErrorMessage() }}
           </mat-error>
+          }
         </mat-form-field>
 
         <!-- Email -->
@@ -29,9 +31,11 @@
           <mat-label>Email</mat-label>
           <input matInput formControlName="email" type="email" required />
           <mat-icon matSuffix>email</mat-icon>
-          <mat-error *ngIf="registerForm.get('email')?.invalid">
+          @if (registerForm.get('email')?.invalid) {
+          <mat-error>
             {{ getEmailErrorMessage() }}
           </mat-error>
+          }
         </mat-form-field>
 
         <!-- Password -->
@@ -51,13 +55,15 @@
             [attr.aria-label]="'Hide password'"
             [attr.aria-pressed]="hidePassword"
           >
-            <mat-icon>{{
-              hidePassword ? "visibility_off" : "visibility"
-            }}</mat-icon>
+            <mat-icon>
+              @if (hidePassword) { visibility_off } @else { visibility }
+            </mat-icon>
           </button>
-          <mat-error *ngIf="registerForm.get('password')?.invalid">
+          @if (registerForm.get('password')?.invalid) {
+          <mat-error>
             {{ getPasswordErrorMessage() }}
           </mat-error>
+          }
         </mat-form-field>
 
         <!-- Confirm Password -->
@@ -77,27 +83,31 @@
             [attr.aria-label]="'Hide password'"
             [attr.aria-pressed]="hideConfirmPassword"
           >
-            <mat-icon>{{
-              hideConfirmPassword ? "visibility_off" : "visibility"
-            }}</mat-icon>
+            <mat-icon>
+              @if (hideConfirmPassword) { visibility_off } @else { visibility }
+            </mat-icon>
           </button>
-          <mat-error *ngIf="registerForm.get('confirmPassword')?.invalid">
+          @if (registerForm.get('confirmPassword')?.invalid) {
+          <mat-error>
             {{ getConfirmPasswordErrorMessage() }}
           </mat-error>
+          }
         </mat-form-field>
 
         <!-- Role -->
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Роль</mat-label>
           <mat-select formControlName="role" required>
-            <mat-option *ngFor="let role of roles" [value]="role.value">
+            @for (role of roles; track role.value) {
+            <mat-option [value]="role.value">
               {{ role.label }}
             </mat-option>
+            }
           </mat-select>
           <mat-icon matSuffix>security</mat-icon>
-          <mat-error *ngIf="registerForm.get('role')?.hasError('required')">
-            Выберите роль пользователя
-          </mat-error>
+          @if (registerForm.get('role')?.hasError('required')) {
+          <mat-error> Выберите роль пользователя </mat-error>
+          }
         </mat-form-field>
 
         <!-- Submit Button -->
@@ -108,18 +118,17 @@
           class="full-width submit-button"
           [disabled]="isLoading"
         >
-          <mat-spinner
-            diameter="20"
-            *ngIf="isLoading"
-            class="button-spinner"
-          ></mat-spinner>
-          <span *ngIf="!isLoading">Зарегистрироваться</span>
+          @if (isLoading) {
+          <mat-spinner diameter="20" class="button-spinner"></mat-spinner>
+          } @if (!isLoading) {
+          <span>Зарегистрироваться</span>
+          }
         </button>
 
         <!-- Login Link -->
         <div class="login-link">
           <span>Уже есть аккаунт? </span>
-          <a mat-button color="accent" routerLink="/login">Войти в систему</a>
+          <a mat-button color="accent" routerLink="/login"> Войти в систему </a>
         </div>
       </form>
     </mat-card-content>

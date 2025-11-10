@@ -11,9 +11,11 @@
           <mat-label>Email</mat-label>
           <input matInput formControlName="email" type="email" required />
           <mat-icon matSuffix>email</mat-icon>
-          <mat-error *ngIf="loginForm.get('email')?.invalid">
+          @if (loginForm.get('email')?.invalid) {
+          <mat-error>
             {{ getEmailErrorMessage() }}
           </mat-error>
+          }
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="full-width">
@@ -32,13 +34,15 @@
             [attr.aria-label]="'Hide password'"
             [attr.aria-pressed]="hidePassword"
           >
-            <mat-icon>{{
-              hidePassword ? "visibility_off" : "visibility"
-            }}</mat-icon>
+            <mat-icon>
+              @if (hidePassword) { visibility_off } @else { visibility }
+            </mat-icon>
           </button>
-          <mat-error *ngIf="loginForm.get('password')?.invalid">
+          @if (loginForm.get('password')?.invalid) {
+          <mat-error>
             {{ getPasswordErrorMessage() }}
           </mat-error>
+          }
         </mat-form-field>
 
         <button
@@ -48,19 +52,18 @@
           class="full-width submit-button"
           [disabled]="isLoading"
         >
-          <mat-spinner
-            diameter="20"
-            *ngIf="isLoading"
-            class="button-spinner"
-          ></mat-spinner>
-          <span *ngIf="!isLoading">Войти</span>
+          @if (isLoading) {
+          <mat-spinner diameter="20" class="button-spinner"></mat-spinner>
+          } @if (!isLoading) {
+          <span>Войти</span>
+          }
         </button>
 
         <div class="register-link">
           <span>Нет аккаунта? </span>
-          <a mat-button color="accent" routerLink="/register"
-            >Зарегистрироваться</a
-          >
+          <a mat-button color="accent" routerLink="/register">
+            Зарегистрироваться
+          </a>
         </div>
       </form>
     </mat-card-content>
