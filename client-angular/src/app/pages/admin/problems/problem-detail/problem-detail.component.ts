@@ -12,6 +12,8 @@ import { MatDividerModule } from '@angular/material/divider';
 
 import { ProblemsService } from '../../../../services/problems.service';
 import { Problem } from '../../../../interfaces/problem.interface';
+import { FormattingService } from '../../../../helpers/formatting.service';
+import { DifficultyService } from '../../../../helpers/difficulty.service';
 
 @Component({
   selector: 'app-problem-detail',
@@ -37,6 +39,8 @@ export class ProblemDetailComponent implements OnInit {
 
   constructor(
     private problemsService: ProblemsService,
+    private formattingService: FormattingService,
+    private difficultyService: DifficultyService,
     private route: ActivatedRoute,
     private router: Router,
     private snackBar: MatSnackBar
@@ -71,50 +75,18 @@ export class ProblemDetailComponent implements OnInit {
   }
 
   getDifficultyColor(difficulty: string): string {
-    switch (difficulty) {
-      case 'easy':
-        return '#4CAF50';
-      case 'medium':
-        return '#FF9800';
-      case 'hard':
-        return '#F44336';
-      default:
-        return '#757575';
-    }
+    return this.difficultyService.getDifficultyColor(difficulty);
   }
 
   getDifficultyText(difficulty: string): string {
-    switch (difficulty) {
-      case 'easy':
-        return 'Легкая';
-      case 'medium':
-        return 'Средняя';
-      case 'hard':
-        return 'Сложная';
-      default:
-        return difficulty;
-    }
+    return this.difficultyService.getDifficultyText(difficulty);
   }
 
   formatDate(dateString: string): string {
-    return new Date(dateString).toLocaleDateString('ru-RU', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
+    return this.formattingService.formatDate(dateString);
   }
 
-  // Метод для форматирования описания (подсветка кода и т.д.)
   formatDescription(description: string): string {
-    // Простое экранирование HTML, в реальном приложении можно использовать Markdown
-    return description
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#039;')
-      .replace(/\n/g, '<br>')
-      .replace(/```([^`]+)```/g, '<pre><code>$1</code></pre>')
-      .replace(/`([^`]+)`/g, '<code>$1</code>');
+    return this.formattingService.formatProblemDescription(description);
   }
 }
