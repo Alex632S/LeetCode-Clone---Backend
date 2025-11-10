@@ -1,6 +1,6 @@
 <div class="problem-detail-container">
   <!-- Loading state -->
-  @if (isLoading) {
+  @if (isLoading()) {
     <div class="loading-container">
       <mat-spinner></mat-spinner>
       <p>Загрузка задачи...</p>
@@ -8,7 +8,7 @@
   }
 
   <!-- Problem details -->
-  @if (!isLoading && problem) {
+  @if (!isLoading() && problem()) {
     <div class="problem-content">
       <div class="header-actions">
         <button mat-button routerLink="/admin/problems" class="back-button">
@@ -25,22 +25,22 @@
       <mat-card class="problem-card">
         <mat-card-header>
           <mat-card-title class="problem-title">
-            {{ problem.title }}
+            {{ problem()!.title }}
           </mat-card-title>
 
           <div class="problem-meta">
             <span
               class="difficulty-badge"
-              [style.background-color]="getDifficultyColor(problem.difficulty)"
+              [style.background-color]="difficultyColor()"
             >
-              {{ getDifficultyText(problem.difficulty) }}
+              {{ difficultyText() }}
             </span>
 
-            @if (problem.averageRating) {
+            @if (problem()!.averageRating) {
               <div class="rating-info">
                 <mat-icon class="rating-icon">star</mat-icon>
-                <span>{{ problem.averageRating.toFixed(1) }}</span>
-                <span class="rating-count">({{ problem.ratingCount }})</span>
+                <span>{{ problem()!.averageRating!.toFixed(1) }}</span>
+                <span class="rating-count">({{ problem()!.ratingCount }})</span>
               </div>
             }
           </div>
@@ -48,10 +48,10 @@
 
         <mat-card-content>
           <!-- Tags -->
-          @if (problem.tags && problem.tags.length > 0) {
+          @if (hasTags()) {
             <div class="tags-section">
               <mat-chip-set>
-                @for (tag of problem.tags; track tag) {
+                @for (tag of problem()!.tags; track tag) {
                   <mat-chip
                     class="tag-chip"
                     [style.background]="'#e3f2fd'"
@@ -69,17 +69,17 @@
             <h3>Описание задачи</h3>
             <div
               class="description-content"
-              [innerHTML]="formatDescription(problem.description)"
+              [innerHTML]="formattedDescription()"
             ></div>
           </section>
 
           <!-- Examples -->
-          @if (problem.examples && problem.examples.length > 0) {
+          @if (hasExamples()) {
             <section class="examples-section">
               <h3>Примеры</h3>
 
               <mat-accordion class="examples-accordion">
-                @for (example of problem.examples; track example; let i = $index) {
+                @for (example of problem()!.examples; track example; let i = $index) {
                   <mat-expansion-panel [expanded]="i === 0">
                     <mat-expansion-panel-header>
                       <mat-panel-title>Пример {{ i + 1 }}</mat-panel-title>
@@ -116,17 +116,17 @@
             <div class="metadata-grid">
               <div class="metadata-item">
                 <mat-icon>calendar_today</mat-icon>
-                <span>Создана: {{ formatDate(problem.createdAt) }}</span>
+                <span>Создана: {{ formattedCreatedAt() }}</span>
               </div>
 
               <div class="metadata-item">
                 <mat-icon>update</mat-icon>
-                <span>Обновлена: {{ formatDate(problem.updatedAt) }}</span>
+                <span>Обновлена: {{ formattedUpdatedAt() }}</span>
               </div>
 
               <div class="metadata-item">
                 <mat-icon>code</mat-icon>
-                <span>ID: {{ problem.id }}</span>
+                <span>ID: {{ problem()!.id }}</span>
               </div>
             </div>
           </section>
@@ -136,7 +136,7 @@
   }
 
   <!-- Error state -->
-  @if (!isLoading && !problem) {
+  @if (!isLoading() && !problem()) {
     <div class="error-state">
       <mat-card>
         <mat-card-content class="error-content">
@@ -145,6 +145,9 @@
           <p>Запрашиваемая задача не существует или была удалена</p>
           <button mat-raised-button color="primary" routerLink="/admin/problems">
             Вернуться к списку задач
+          </button>
+          <button mat-button color="accent" (click)="reloadProblem()" class="retry-button">
+            Попробовать снова
           </button>
         </mat-card-content>
       </mat-card>

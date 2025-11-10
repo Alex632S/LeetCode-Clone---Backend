@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { MatTableModule } from '@angular/material/table';
@@ -9,10 +9,12 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 import { ProblemsService } from '../../../../services/problems.service';
 import { Problem } from '../../../../interfaces/problem.interface';
 import { ConfirmDialogComponent } from '../../../../components/shared/confirm-dialog/confirm-dialog.component';
+import { DifficultyService } from '../../../../helpers/utils/difficulty.utils';
 
 @Component({
   selector: 'app-problem-list',
@@ -32,40 +34,58 @@ import { ConfirmDialogComponent } from '../../../../components/shared/confirm-di
   templateUrl: './problem-list.component.html',
   styleUrls: ['./problem-list.component.scss'],
 })
-export class ProblemListComponent implements OnInit {
-  problems: Problem[] = [];
-  isLoading = true;
-  displayedColumns: string[] = ['id', 'title', 'difficulty', 'tags', 'actions'];
+export class ProblemListComponent {
+  // Services
+  private problemsService = inject(ProblemsService);
+  private router = inject(Router);
+  private snackBar = inject(MatSnackBar);
+  private dialog = inject(MatDialog);
+  private difficultyService = inject(DifficultyService);
 
-  constructor(
-    private problemsService: ProblemsService,
-    private router: Router,
-    private snackBar: MatSnackBar,
-    private dialog: MatDialog
-  ) {}
+  // Signals
+  private problemsResult = toSignal(this.problemsService.getProblems(), {
+    initialValue: null,
+  });
 
-  ngOnInit(): void {
+  isLoading = signal(true);
+  displayedColumns = signal<string[]>([
+    'id',
+    'title',
+    'difficulty',
+    'tags',
+    'actions',
+  ]);
+
+  // Computed values
+  problems = computed(() => {
+    const result = this.problemsResult();
+    return result?.problems || [];
+  });
+
+  hasProblems = computed(() => this.problems().length > 0);
+
+  problemsCount = computed(() => this.problems().length);
+
+  // Constructor
+  constructor() {
     this.loadProblems();
   }
 
-  loadProblems(): void {
-    this.isLoading = true;
-    this.problemsService.getProblems().subscribe({
-      next: (response) => {
-        this.problems = response.problems;
-        this.isLoading = false;
-      },
-      error: (error) => {
-        this.snackBar.open('Ошибка загрузки задач', 'Закрыть', {
-          duration: 3000,
-          panelClass: ['error-snackbar'],
-        });
-        this.isLoading = false;
-        console.error('Error loading problems:', error);
-      },
-    });
+  private async loadProblems(): Promise<void> {
+    this.isLoading.set(true);
+
+    try {
+      // toSignal автоматически обработает подписку
+      await this.problemsService.getProblems().toPromise();
+    } catch (error) {
+      this.showError('Ошибка загрузки задач');
+      console.error('Error loading problems:', error);
+    } finally {
+      this.isLoading.set(false);
+    }
   }
 
+  // Navigation methods
   viewProblem(id: number): void {
     this.router.navigate(['/admin/problems', id]);
   }
@@ -74,7 +94,7 @@ export class ProblemListComponent implements OnInit {
     this.router.navigate(['/admin/problems', id, 'edit']);
   }
 
-  deleteProblem(problem: Problem): void {
+  async deleteProblem(problem: Problem): Promise<void> {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: '400px',
       data: {
@@ -85,55 +105,50 @@ export class ProblemListComponent implements OnInit {
       },
     });
 
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-        this.problemsService.deleteProblem(problem.id).subscribe({
-          next: () => {
-            this.snackBar.open('Задача удалена', 'Закрыть', {
-              duration: 3000,
-              panelClass: ['success-snackbar'],
-            });
-            this.loadProblems();
-          },
-          error: (error) => {
-            this.snackBar.open('Ошибка удаления задачи', 'Закрыть', {
-              duration: 3000,
-              panelClass: ['error-snackbar'],
-            });
-            console.error('Error deleting problem:', error);
-          },
-        });
+    const result = await dialogRef.afterClosed().toPromise();
+
+    if (result) {
+      try {
+        await this.problemsService.deleteProblem(problem.id).toPromise();
+        this.showSuccess('Задача удалена');
+        this.loadProblems(); // Перезагружаем список
+      } catch (error) {
+        this.showError('Ошибка удаления задачи');
+        console.error('Error deleting problem:', error);
       }
-    });
+    }
   }
 
   createProblem(): void {
     this.router.navigate(['/admin/problems/new']);
   }
 
+  // Helper methods
   getDifficultyColor(difficulty: string): string {
-    switch (difficulty) {
-      case 'easy':
-        return '#4CAF50';
-      case 'medium':
-        return '#FF9800';
-      case 'hard':
-        return '#F44336';
-      default:
-        return '#757575';
-    }
+    return this.difficultyService.getDifficultyColor(difficulty);
   }
 
   getDifficultyText(difficulty: string): string {
-    switch (difficulty) {
-      case 'easy':
-        return 'Легкая';
-      case 'medium':
-        return 'Средняя';
-      case 'hard':
-        return 'Сложная';
-      default:
-        return difficulty;
-    }
+    return this.difficultyService.getDifficultyText(difficulty);
+  }
+
+  // Snackbar helpers
+  private showSuccess(message: string): void {
+    this.snackBar.open(message, 'Закрыть', {
+      duration: 3000,
+      panelClass: ['success-snackbar'],
+    });
+  }
+
+  private showError(message: string): void {
+    this.snackBar.open(message, 'Закрыть', {
+      duration: 3000,
+      panelClass: ['error-snackbar'],
+    });
+  }
+
+  // Refresh method
+  refreshProblems(): void {
+    this.loadProblems();
   }
 }

@@ -2,11 +2,11 @@
   <mat-card>
     <mat-card-header>
       <mat-card-title>
-        {{ isEditMode ? "Редактирование задачи" : "Создание новой задачи" }}
+        {{ isEditMode() ? "Редактирование задачи" : "Создание новой задачи" }}
       </mat-card-title>
       <mat-card-subtitle>
         {{
-          isEditMode
+          isEditMode()
             ? "Изменение данных задачи"
             : "Добавление новой задачи на платформу"
         }}
@@ -15,216 +15,197 @@
 
     <mat-card-content>
       <!-- Loading state -->
-      @if (isLoading) {
-        <div class="loading-container">
-          <mat-spinner></mat-spinner>
-          <p>Загрузка данных задачи...</p>
-        </div>
+      @if (isLoading()) {
+      <div class="loading-container">
+        <mat-spinner></mat-spinner>
+        <p>Загрузка данных задачи...</p>
+      </div>
       }
 
       <!-- Problem form -->
-      @if (!isLoading) {
-        <form
-          [formGroup]="problemForm"
-          (ngSubmit)="onSubmit()"
-          class="problem-form"
-        >
-          <!-- Title -->
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Название задачи</mat-label>
-            <input matInput formControlName="title" required />
-            <mat-icon matSuffix>title</mat-icon>
-            @if (problemForm.get('title')?.hasError('required')) {
-              <mat-error>
-                Название обязательно
-              </mat-error>
+      @if (!isLoading()) {
+      <form
+        [formGroup]="problemForm"
+        (ngSubmit)="onSubmit()"
+        class="problem-form"
+      >
+        <!-- Title -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Название задачи</mat-label>
+          <input matInput formControlName="title" required />
+          <mat-icon matSuffix>title</mat-icon>
+          @if (problemForm.get('title')?.hasError('required')) {
+          <mat-error> Название обязательно </mat-error>
+          } @if (problemForm.get('title')?.hasError('minlength')) {
+          <mat-error> Минимум 3 символа </mat-error>
+          }
+        </mat-form-field>
+
+        <!-- Description -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Описание задачи</mat-label>
+          <textarea matInput formControlName="description" required rows="6">
+          </textarea>
+          <mat-icon matSuffix>description</mat-icon>
+          @if (problemForm.get('description')?.hasError('required')) {
+          <mat-error> Описание обязательно </mat-error>
+          } @if (problemForm.get('description')?.hasError('minlength')) {
+          <mat-error> Минимум 10 символов </mat-error>
+          }
+        </mat-form-field>
+
+        <!-- Difficulty -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Сложность</mat-label>
+          <mat-select formControlName="difficulty" required>
+            @for (difficulty of difficulties(); track difficulty.value) {
+            <mat-option [value]="difficulty.value">
+              {{ difficulty.label }}
+            </mat-option>
             }
-            @if (problemForm.get('title')?.hasError('minlength')) {
-              <mat-error>
-                Минимум 3 символа
-              </mat-error>
+          </mat-select>
+          <mat-icon matSuffix>speed</mat-icon>
+          @if (problemForm.get('difficulty')?.hasError('required')) {
+          <mat-error> Выберите сложность </mat-error>
+          }
+        </mat-form-field>
+
+        <!-- Tags -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Теги</mat-label>
+          <mat-select formControlName="tags" multiple>
+            @for (tag of allTags(); track tag.name) {
+            <mat-option [value]="tag.name">
+              <span class="tag-option">
+                <span
+                  class="tag-color"
+                  [style.background-color]="tag.color || '#666'"
+                ></span>
+                {{ tag.name }}
+              </span>
+            </mat-option>
             }
-          </mat-form-field>
+          </mat-select>
+          <mat-icon matSuffix>local_offer</mat-icon>
+        </mat-form-field>
 
-          <!-- Description -->
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Описание задачи</mat-label>
-            <textarea matInput formControlName="description" required rows="6">
-            </textarea>
-            <mat-icon matSuffix>description</mat-icon>
-            @if (problemForm.get('description')?.hasError('required')) {
-              <mat-error>
-                Описание обязательно
-              </mat-error>
-            }
-            @if (problemForm.get('description')?.hasError('minlength')) {
-              <mat-error>
-                Минимум 10 символов
-              </mat-error>
-            }
-          </mat-form-field>
+        <!-- Examples -->
+        <mat-accordion class="examples-accordion">
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <mat-panel-title> Примеры ввода/вывода </mat-panel-title>
+              <mat-panel-description>
+                {{ examplesCount() }} примеров
+              </mat-panel-description>
+            </mat-expansion-panel-header>
 
-          <!-- Difficulty -->
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Сложность</mat-label>
-            <mat-select formControlName="difficulty" required>
-              @for (difficulty of difficulties; track difficulty.value) {
-                <mat-option [value]="difficulty.value">
-                  {{ difficulty.label }}
-                </mat-option>
-              }
-            </mat-select>
-            <mat-icon matSuffix>speed</mat-icon>
-            @if (problemForm.get('difficulty')?.hasError('required')) {
-              <mat-error>
-                Выберите сложность
-              </mat-error>
-            }
-          </mat-form-field>
+            <div formArrayName="examples" class="examples-container">
+              @for (example of examplesFormArray.controls; track i; let i =
+              $index) {
+              <div [formGroupName]="i" class="example-item">
+                <h4>Пример {{ i + 1 }}</h4>
 
-          <!-- Tags -->
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Теги</mat-label>
-            <mat-select formControlName="tags" multiple>
-              @for (tag of allTags; track tag.name) {
-                <mat-option [value]="tag.name">
-                  <span class="tag-option">
-                    <span
-                      class="tag-color"
-                      [style.background-color]="tag.color || '#666'"
-                    ></span>
-                    {{ tag.name }}
-                  </span>
-                </mat-option>
-              }
-            </mat-select>
-            <mat-icon matSuffix>local_offer</mat-icon>
-          </mat-form-field>
-
-          <!-- Examples -->
-          <mat-accordion class="examples-accordion">
-            <mat-expansion-panel>
-              <mat-expansion-panel-header>
-                <mat-panel-title> Примеры ввода/вывода </mat-panel-title>
-                <mat-panel-description>
-                  {{ examplesFormArray.length }} примеров
-                </mat-panel-description>
-              </mat-expansion-panel-header>
-
-              <div formArrayName="examples" class="examples-container">
-                @for (example of examplesFormArray.controls; track i; let i = $index) {
-                  <div [formGroupName]="i" class="example-item">
-                    <h4>Пример {{ i + 1 }}</h4>
-
-                    <div class="example-row">
-                      <mat-form-field appearance="outline" class="full-width">
-                        <mat-label>Входные данные</mat-label>
-                        <textarea
-                          matInput
-                          formControlName="input"
-                          rows="3"
-                          required
-                        ></textarea>
-                        @if (example.get('input')?.hasError('required')) {
-                          <mat-error>
-                            Входные данные обязательны
-                          </mat-error>
-                        }
-                      </mat-form-field>
-                    </div>
-
-                    <div class="example-row">
-                      <mat-form-field appearance="outline" class="full-width">
-                        <mat-label>Выходные данные</mat-label>
-                        <textarea
-                          matInput
-                          formControlName="output"
-                          rows="3"
-                          required
-                        ></textarea>
-                        @if (example.get('output')?.hasError('required')) {
-                          <mat-error>
-                            Выходные данные обязательны
-                          </mat-error>
-                        }
-                      </mat-form-field>
-                    </div>
-
-                    <div class="example-row">
-                      <mat-form-field appearance="outline" class="full-width">
-                        <mat-label>Объяснение (опционально)</mat-label>
-                        <textarea
-                          matInput
-                          formControlName="explanation"
-                          rows="2"
-                        ></textarea>
-                      </mat-form-field>
-                    </div>
-
-                    <div class="example-actions">
-                      <button
-                        mat-icon-button
-                        color="warn"
-                        type="button"
-                        (click)="removeExample(i)"
-                        [disabled]="examplesFormArray.length === 1"
-                      >
-                        <mat-icon>delete</mat-icon>
-                      </button>
-                    </div>
-
-                    @if (i < examplesFormArray.length - 1) {
-                      <mat-divider></mat-divider>
+                <div class="example-row">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Входные данные</mat-label>
+                    <textarea
+                      matInput
+                      formControlName="input"
+                      rows="3"
+                      required
+                    ></textarea>
+                    @if (example.get('input')?.hasError('required')) {
+                    <mat-error> Входные данные обязательны </mat-error>
                     }
-                  </div>
+                  </mat-form-field>
+                </div>
+
+                <div class="example-row">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Выходные данные</mat-label>
+                    <textarea
+                      matInput
+                      formControlName="output"
+                      rows="3"
+                      required
+                    ></textarea>
+                    @if (example.get('output')?.hasError('required')) {
+                    <mat-error> Выходные данные обязательны </mat-error>
+                    }
+                  </mat-form-field>
+                </div>
+
+                <div class="example-row">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Объяснение (опционально)</mat-label>
+                    <textarea
+                      matInput
+                      formControlName="explanation"
+                      rows="2"
+                    ></textarea>
+                  </mat-form-field>
+                </div>
+
+                <div class="example-actions">
+                  <button
+                    mat-icon-button
+                    color="warn"
+                    type="button"
+                    (click)="removeExample(i)"
+                    [disabled]="examplesFormArray.length === 1"
+                  >
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+
+                @if (i < examplesFormArray.length - 1) {
+                <mat-divider></mat-divider>
                 }
               </div>
-
-              <div class="add-example-action">
-                <button
-                  mat-button
-                  color="primary"
-                  type="button"
-                  (click)="addExample()"
-                >
-                  <mat-icon>add</mat-icon>
-                  Добавить пример
-                </button>
-              </div>
-            </mat-expansion-panel>
-          </mat-accordion>
-
-          <!-- Form actions -->
-          <div class="form-actions">
-            <button
-              mat-button
-              type="button"
-              (click)="onCancel()"
-              class="cancel-button"
-            >
-              Отмена
-            </button>
-            <button
-              mat-raised-button
-              color="primary"
-              type="submit"
-              [disabled]="!problemForm.valid || isSubmitting"
-              class="submit-button"
-            >
-              @if (isSubmitting) {
-                <mat-spinner
-                  diameter="20"
-                  class="button-spinner"
-                ></mat-spinner>
               }
-              @if (!isSubmitting) {
-                <span>
-                  {{ isEditMode ? "Обновить задачу" : "Создать задачу" }}
-                </span>
-              }
-            </button>
-          </div>
-        </form>
+            </div>
+
+            <div class="add-example-action">
+              <button
+                mat-button
+                color="primary"
+                type="button"
+                (click)="addExample()"
+              >
+                <mat-icon>add</mat-icon>
+                Добавить пример
+              </button>
+            </div>
+          </mat-expansion-panel>
+        </mat-accordion>
+
+        <!-- Form actions -->
+        <div class="form-actions">
+          <button
+            mat-button
+            type="button"
+            (click)="onCancel()"
+            class="cancel-button"
+          >
+            Отмена
+          </button>
+          <button
+            mat-raised-button
+            color="primary"
+            type="submit"
+            [disabled]="!isFormValid()"
+            class="submit-button"
+          >
+            @if (isSubmitting()) {
+            <mat-spinner diameter="20" class="button-spinner"></mat-spinner>
+            } @if (!isSubmitting()) {
+            <span>
+              {{ isEditMode() ? "Обновить задачу" : "Создать задачу" }}
+            </span>
+            }
+          </button>
+        </div>
+      </form>
       }
     </mat-card-content>
   </mat-card>

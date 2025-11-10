@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   FormBuilder,
@@ -21,6 +21,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatDividerModule } from '@angular/material/divider';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 import { ProblemsService } from '../../../../services/problems.service';
 import { TagsService } from '../../../../services/tags.service';
@@ -30,6 +31,7 @@ import {
   ProblemExample,
 } from '../../../../interfaces/problem.interface';
 import { Tag } from '../../../../interfaces/tag.interface';
+import { DifficultyService } from '../../../../helpers/utils/difficulty.utils';
 
 @Component({
   selector: 'app-problem-form',
@@ -54,29 +56,39 @@ import { Tag } from '../../../../interfaces/tag.interface';
   templateUrl: './problem-form.component.html',
   styleUrls: ['./problem-form.component.scss'],
 })
-export class ProblemFormComponent implements OnInit {
+export class ProblemFormComponent {
+  // Services
+  private fb = inject(FormBuilder);
+  private problemsService = inject(ProblemsService);
+  private tagsService = inject(TagsService);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private snackBar = inject(MatSnackBar);
+  private difficultyService = inject(DifficultyService);
+
+  // Form
   problemForm: FormGroup;
-  isEditMode = false;
-  problemId: number | null = null;
-  isLoading = false;
-  isSubmitting = false;
-  allTags: Tag[] = [];
-  filteredTags: Tag[] = [];
 
-  difficulties = [
-    { value: 'easy', label: 'Легкая' },
-    { value: 'medium', label: 'Средняя' },
-    { value: 'hard', label: 'Сложная' },
-  ];
+  // Signals
+  problemId = signal<number | null>(null);
+  isEditMode = signal(false);
+  isLoading = signal(false);
+  isSubmitting = signal(false);
+  allTags = signal<Tag[]>([]);
 
-  constructor(
-    private fb: FormBuilder,
-    private problemsService: ProblemsService,
-    private tagsService: TagsService,
-    private route: ActivatedRoute,
-    private router: Router,
-    private snackBar: MatSnackBar
-  ) {
+  // Computed values
+  difficulties = computed(() => this.difficultyService.getAllDifficulties());
+
+  isFormValid = computed(() => this.problemForm.valid && !this.isSubmitting());
+
+  examplesCount = computed(() => this.examplesFormArray.length);
+
+  // Form array getter
+  get examplesFormArray(): FormArray {
+    return this.problemForm.get('examples') as FormArray;
+  }
+
+  constructor() {
     this.problemForm = this.fb.group({
       title: ['', [Validators.required, Validators.minLength(3)]],
       description: ['', [Validators.required, Validators.minLength(10)]],
@@ -84,27 +96,37 @@ export class ProblemFormComponent implements OnInit {
       examples: this.fb.array([]),
       tags: [[]],
     });
+
+    this.initializeComponent();
   }
 
-  ngOnInit(): void {
-    this.loadTags();
+  private async initializeComponent(): Promise<void> {
+    await this.loadTags();
 
-    this.problemId = Number(this.route.snapshot.paramMap.get('id'));
-    this.isEditMode = this.route.snapshot.url.some(
+    const id = Number(this.route.snapshot.paramMap.get('id'));
+    const isEdit = this.route.snapshot.url.some(
       (segment) => segment.path === 'edit'
     );
 
-    if (this.isEditMode && this.problemId) {
-      this.loadProblem();
+    this.problemId.set(id);
+    this.isEditMode.set(isEdit);
+
+    if (isEdit && id) {
+      await this.loadProblem();
     } else {
       this.addExample(); // Добавляем пустой пример по умолчанию
     }
   }
 
-  loadProblem(): void {
-    this.isLoading = true;
-    this.problemsService.getProblem(this.problemId!).subscribe({
-      next: (problem: Problem) => {
+  private async loadProblem(): Promise<void> {
+    this.isLoading.set(true);
+
+    try {
+      const problem = await this.problemsService
+        .getProblem(this.problemId()!)
+        .toPromise();
+
+      if (problem) {
         this.problemForm.patchValue({
           title: problem.title,
           description: problem.description,
@@ -115,40 +137,28 @@ export class ProblemFormComponent implements OnInit {
         // Загружаем примеры
         this.examplesFormArray.clear();
         problem.examples.forEach((example: ProblemExample) => {
-          // ✅ Типизируем параметр
           this.addExample(example);
         });
-
-        this.isLoading = false;
-      },
-      error: (error: any) => {
-        this.snackBar.open('Ошибка загрузки задачи', 'Закрыть', {
-          duration: 3000,
-          panelClass: ['error-snackbar'],
-        });
-        this.isLoading = false;
-      },
-    });
+      }
+    } catch (error) {
+      this.showError('Ошибка загрузки задачи');
+    } finally {
+      this.isLoading.set(false);
+    }
   }
 
-  loadTags(): void {
-    this.tagsService.getTags().subscribe({
-      next: (response) => {
-        this.allTags = response.tags;
-        this.filteredTags = response.tags;
-      },
-      error: (error: any) => {
-        console.error('Error loading tags:', error);
-      },
-    });
-  }
-
-  get examplesFormArray(): FormArray {
-    return this.problemForm.get('examples') as FormArray;
+  private async loadTags(): Promise<void> {
+    try {
+      const response = await this.tagsService.getTags().toPromise();
+      if (response) {
+        this.allTags.set(response.tags);
+      }
+    } catch (error) {
+      console.error('Error loading tags:', error);
+    }
   }
 
   addExample(example?: ProblemExample): void {
-    // ✅ Типизируем параметр
     const exampleGroup = this.fb.group({
       input: [example?.input || '', Validators.required],
       output: [example?.output || '', Validators.required],
@@ -161,9 +171,9 @@ export class ProblemFormComponent implements OnInit {
     this.examplesFormArray.removeAt(index);
   }
 
-  onSubmit(): void {
+  async onSubmit(): Promise<void> {
     if (this.problemForm.valid) {
-      this.isSubmitting = true;
+      this.isSubmitting.set(true);
 
       const problemData: ProblemCreate = {
         title: this.problemForm.value.title,
@@ -173,31 +183,24 @@ export class ProblemFormComponent implements OnInit {
         tags: this.problemForm.value.tags || [],
       };
 
-      const request = this.isEditMode
-        ? this.problemsService.updateProblem(this.problemId!, problemData)
-        : this.problemsService.createProblem(problemData);
+      try {
+        const request = this.isEditMode()
+          ? this.problemsService.updateProblem(this.problemId()!, problemData)
+          : this.problemsService.createProblem(problemData);
 
-      request.subscribe({
-        next: (problem: Problem) => {
-          this.isSubmitting = false;
-          const message = this.isEditMode
-            ? 'Задача обновлена'
-            : 'Задача создана';
-          this.snackBar.open(message, 'Закрыть', {
-            duration: 3000,
-            panelClass: ['success-snackbar'],
-          });
-          this.router.navigate(['/admin/problems']);
-        },
-        error: (error: any) => {
-          this.isSubmitting = false;
-          const errorMessage = error.error?.error || 'Ошибка сохранения задачи';
-          this.snackBar.open(errorMessage, 'Закрыть', {
-            duration: 5000,
-            panelClass: ['error-snackbar'],
-          });
-        },
-      });
+        const problem = await request.toPromise();
+
+        const message = this.isEditMode()
+          ? 'Задача обновлена'
+          : 'Задача создана';
+        this.showSuccess(message);
+        this.router.navigate(['/admin/problems']);
+      } catch (error: any) {
+        const errorMessage = error.error?.error || 'Ошибка сохранения задачи';
+        this.showError(errorMessage);
+      } finally {
+        this.isSubmitting.set(false);
+      }
     } else {
       this.markFormGroupTouched();
     }
@@ -225,7 +228,20 @@ export class ProblemFormComponent implements OnInit {
   }
 
   getDifficultyLabel(difficulty: string): string {
-    const diff = this.difficulties.find((d) => d.value === difficulty);
-    return diff ? diff.label : difficulty;
+    return this.difficultyService.getDifficultyText(difficulty);
+  }
+
+  private showSuccess(message: string): void {
+    this.snackBar.open(message, 'Закрыть', {
+      duration: 3000,
+      panelClass: ['success-snackbar'],
+    });
+  }
+
+  private showError(message: string): void {
+    this.snackBar.open(message, 'Закрыть', {
+      duration: 5000,
+      panelClass: ['error-snackbar'],
+    });
   }
 }
