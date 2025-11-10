@@ -16,25 +16,25 @@
 
       <div class="table-container">
         <!-- Loading state -->
-        <div *ngIf="isLoading" class="loading-container">
+        @if (isLoading) {
+        <div class="loading-container">
           <mat-spinner></mat-spinner>
           <p>Загрузка пользователей...</p>
         </div>
+        }
 
         <!-- Empty state -->
-        <div *ngIf="!isLoading && users.length === 0" class="empty-state">
+        @if (!isLoading && users.length === 0) {
+        <div class="empty-state">
           <mat-icon>people_outline</mat-icon>
           <h3>Пользователи не найдены</h3>
           <p>На платформе еще нет зарегистрированных пользователей</p>
         </div>
+        }
 
         <!-- Users table -->
-        <table
-          *ngIf="!isLoading && users.length > 0"
-          mat-table
-          [dataSource]="users"
-          class="mat-elevation-z8"
-        >
+        @if (!isLoading && users.length > 0) {
+        <table mat-table [dataSource]="users" class="mat-elevation-z8">
           <!-- ID Column -->
           <ng-container matColumnDef="id">
             <th mat-header-cell *matHeaderCellDef>ID</th>
@@ -98,6 +98,7 @@
           <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
           <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
         </table>
+        }
       </div>
     </mat-card-content>
   </mat-card>
