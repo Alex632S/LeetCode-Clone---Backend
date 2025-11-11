@@ -1,0 +1,113 @@
+.problem-form-container {
+  padding: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.problem-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.examples-accordion {
+  margin: 16px 0;
+}
+
+.examples-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.example-item {
+  padding: 16px 0;
+}
+
+.example-row {
+  margin-bottom: 16px;
+}
+
+.example-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
+.add-example-action {
+  margin-top: 16px;
+  text-align: center;
+}
+
+.tag-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tag-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.form-actions {
+  display: flex;
+  gap: 16px;
+  justify-content: flex-end;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid #e0e0e0;
+
+  .cancel-button {
+    margin-right: auto;
+  }
+
+  .submit-button {
+    min-width: 160px;
+  }
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  text-align: center;
+
+  p {
+    margin-top: 16px;
+    color: #666;
+  }
+}
+
+.button-spinner {
+  display: inline-block;
+  margin-right: 8px;
+}
+
+// Адаптивность
+@media (max-width: 768px) {
+  .problem-form-container {
+    padding: 10px;
+  }
+
+  .form-actions {
+    flex-direction: column;
+
+    .cancel-button {
+      margin-right: 0;
+      order: 2;
+    }
+
+    .submit-button {
+      order: 1;
+    }
+  }
+}

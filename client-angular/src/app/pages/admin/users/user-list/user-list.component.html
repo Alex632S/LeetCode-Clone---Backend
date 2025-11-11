@@ -1,0 +1,105 @@
+<div class="user-list-container">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Управление пользователями</mat-card-title>
+      <mat-card-subtitle>Список всех пользователей платформы</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <div class="header-actions">
+        <div class="stats">
+          <span class="total-users"
+            >Всего пользователей: {{ users.length }}</span
+          >
+        </div>
+      </div>
+
+      <div class="table-container">
+        <!-- Loading state -->
+        @if (isLoading) {
+        <div class="loading-container">
+          <mat-spinner></mat-spinner>
+          <p>Загрузка пользователей...</p>
+        </div>
+        }
+
+        <!-- Empty state -->
+        @if (!isLoading && users.length === 0) {
+        <div class="empty-state">
+          <mat-icon>people_outline</mat-icon>
+          <h3>Пользователи не найдены</h3>
+          <p>На платформе еще нет зарегистрированных пользователей</p>
+        </div>
+        }
+
+        <!-- Users table -->
+        @if (!isLoading && users.length > 0) {
+        <table mat-table [dataSource]="users" class="mat-elevation-z8">
+          <!-- ID Column -->
+          <ng-container matColumnDef="id">
+            <th mat-header-cell *matHeaderCellDef>ID</th>
+            <td mat-cell *matCellDef="let user">{{ user.id }}</td>
+          </ng-container>
+
+          <!-- Username Column -->
+          <ng-container matColumnDef="username">
+            <th mat-header-cell *matHeaderCellDef>Имя пользователя</th>
+            <td mat-cell *matCellDef="let user">
+              <strong>{{ user.username }}</strong>
+            </td>
+          </ng-container>
+
+          <!-- Email Column -->
+          <ng-container matColumnDef="email">
+            <th mat-header-cell *matHeaderCellDef>Email</th>
+            <td mat-cell *matCellDef="let user" class="email-cell">
+              {{ user.email }}
+            </td>
+          </ng-container>
+
+          <!-- Role Column -->
+          <ng-container matColumnDef="role">
+            <th mat-header-cell *matHeaderCellDef>Роль</th>
+            <td mat-cell *matCellDef="let user">
+              <span
+                class="role-badge"
+                [style.background-color]="getRoleColor(user.role)"
+              >
+                {{ getRoleText(user.role) }}
+              </span>
+            </td>
+          </ng-container>
+
+          <!-- Created At Column -->
+          <ng-container matColumnDef="createdAt">
+            <th mat-header-cell *matHeaderCellDef>Дата регистрации</th>
+            <td mat-cell *matCellDef="let user">
+              {{ formatDate(user.createdAt) }}
+            </td>
+          </ng-container>
+
+          <!-- Actions Column -->
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef>Действия</th>
+            <td mat-cell *matCellDef="let user">
+              <div class="action-buttons">
+                <button
+                  mat-icon-button
+                  color="accent"
+                  (click)="editUser(user.id)"
+                  matTooltip="Редактировать роль"
+                >
+                  <mat-icon>edit</mat-icon>
+                </button>
+              </div>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+        </table>
+        }
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>
